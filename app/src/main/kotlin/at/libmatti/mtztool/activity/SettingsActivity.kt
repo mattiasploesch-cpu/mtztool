@@ -471,9 +471,25 @@ private fun AppearanceSettings() {
         SetActionRow(
             icon = Icons.Default.Palette,
             title = "App-Theme Studio",
-            subtitle = "Alle Farben per Picker ändern und einreichen",
+            subtitle = "Alle Farben inklusive Uhr per Picker ändern und einreichen",
             onClick = {
                 context.startActivity(Intent(context, AppThemeStudioActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "MTZ Theme Editor",
+            subtitle = "Metadaten, Komponenten, Schriftart, Wallpaper und Lockscreen bearbeiten",
+            onClick = {
+                context.startActivity(Intent(context, ThemePatchActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "Eigenes MTZ bauen",
+            subtitle = "Nur Schriftart, Wallpaper und Lockscreen-Bild importieren",
+            onClick = {
+                context.startActivity(Intent(context, ThemeStudioActivity::class.java))
             },
         )
     }

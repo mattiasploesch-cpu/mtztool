@@ -95,13 +95,44 @@ private val colorRoles = linkedMapOf(
     "primary" to "#415F91",
     "onPrimary" to "#FFFFFF",
     "primaryContainer" to "#D6E3FF",
+    "onPrimaryContainer" to "#001B3E",
     "secondary" to "#565F71",
+    "onSecondary" to "#FFFFFF",
+    "secondaryContainer" to "#DAE2F9",
+    "onSecondaryContainer" to "#131C2B",
     "tertiary" to "#705575",
+    "onTertiary" to "#FFFFFF",
+    "tertiaryContainer" to "#FAD8FD",
+    "onTertiaryContainer" to "#28132E",
     "background" to "#F9F9FF",
+    "onBackground" to "#191C20",
     "surface" to "#F9F9FF",
     "onSurface" to "#191C20",
+    "surfaceVariant" to "#E0E2EC",
+    "onSurfaceVariant" to "#44474E",
+    "surfaceTint" to "#415F91",
+    "surfaceBright" to "#F9F9FF",
+    "surfaceDim" to "#D9D9E0",
+    "surfaceContainerLowest" to "#FFFFFF",
+    "surfaceContainerLow" to "#F3F3FA",
+    "surfaceContainer" to "#EEEDF4",
+    "surfaceContainerHigh" to "#E8E7EE",
+    "surfaceContainerHighest" to "#E2E2E9",
+    "inverseSurface" to "#2E3036",
+    "inverseOnSurface" to "#F0F0F7",
+    "inversePrimary" to "#AAC7FF",
     "error" to "#BA1A1A",
     "onError" to "#FFFFFF",
+    "errorContainer" to "#FFDAD6",
+    "onErrorContainer" to "#410002",
+    "outline" to "#74777F",
+    "outlineVariant" to "#C4C6D0",
+    "scrim" to "#000000",
+    // Custom clock colors. They are written into the app-theme JSON and can
+    // be consumed by clock widgets or a future in-app clock style.
+    "clockBackground" to "#1B1B1F",
+    "clockText" to "#E6E1E5",
+    "clockAccent" to "#D0BCFF",
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -360,6 +391,20 @@ private fun renderPreview(name: String, colors: Map<String, String>): Bitmap {
     )
     canvas.drawRect(RectF(0f, 0f, width.toFloat(), height.toFloat()), paint)
     paint.shader = null
+    // Clock preview with its own custom colors.
+    val clockBackground = android.graphics.Color.parseColor(
+        colors["clockBackground"] ?: "#1B1B1F"
+    )
+    val clockText = android.graphics.Color.parseColor(colors["clockText"] ?: "#E6E1E5")
+    val clockAccent = android.graphics.Color.parseColor(colors["clockAccent"] ?: "#D0BCFF")
+    paint.color = clockBackground
+    canvas.drawRoundRect(RectF(56f, 34f, 310f, 142f), 28f, 28f, paint)
+    paint.color = clockText
+    paint.textSize = 54f
+    paint.isFakeBoldText = true
+    canvas.drawText("12:34", 82f, 110f, paint)
+    paint.color = clockAccent
+    canvas.drawCircle(282f, 62f, 9f, paint)
     paint.color = android.graphics.Color.argb(210, 255, 255, 255)
     canvas.drawRoundRect(RectF(56f, 170f, 664f, 300f), 36f, 36f, paint)
     paint.color = primary

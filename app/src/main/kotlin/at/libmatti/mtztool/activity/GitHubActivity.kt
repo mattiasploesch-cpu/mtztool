@@ -101,6 +101,10 @@ fun GitHubScreen(onBack: () -> Unit) {
     var pulls by remember { mutableStateOf<List<GitHubApi.PullRequest>>(emptyList()) }
     var notifications by remember { mutableStateOf<List<GitHubApi.Notification>>(emptyList()) }
     var runs by remember { mutableStateOf<List<GitHubApi.WorkflowRun>>(emptyList()) }
+    var selectedIssue by remember { mutableStateOf<GitHubApi.Issue?>(null) }
+    var repoLabels by remember { mutableStateOf<List<GitHubApi.Label>>(emptyList()) }
+    var assignableUsers by remember { mutableStateOf<List<String>>(emptyList()) }
+    var workflows by remember { mutableStateOf<List<GitHubApi.Workflow>>(emptyList()) }
 
     val authLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -171,6 +175,14 @@ fun GitHubScreen(onBack: () -> Unit) {
             )
         }
         loading = false
+    }
+
+    LaunchedEffect(selectedIssue?.number, isOwner) {
+        val issue = selectedIssue ?: return@LaunchedEffect
+        if (!isOwner) return@LaunchedEffect
+        repoLabels = GitHubApi.labels(context).getOrDefault(emptyList())
+        assignableUsers = GitHubApi.assignableUsers(context).getOrDefault(emptyList())
+        workflows = GitHubApi.workflows(context).getOrDefault(emptyList())
     }
 
     Scaffold(
@@ -438,7 +450,7 @@ fun GitHubScreen(onBack: () -> Unit) {
                                 subtitle = "${issue.state} · ${issue.author} · " +
                                     issue.labels.joinToString(", ") +
                                     if (issue.comments > 0) " · ${issue.comments} Kommentare" else "",
-                                onClick = { open(issue.htmlUrl, "Issue #${issue.number}") },
+                                onClick = { selectedIssue = issue },
                             )
                         }
                         if (issues.isEmpty() && !loading) {
@@ -573,6 +585,23 @@ fun GitHubScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+
+    selectedIssue?.let { issue ->
+        IssueDetailDialog(
+            issue = issue,
+            isOwner = isOwner,
+            login = login,
+            repoLabels = repoLabels,
+            assignableUsers = assignableUsers,
+            workflows = workflows,
+            onDismiss = { selectedIssue = null },
+            onUpdated = {
+                selectedIssue = it
+                revision += 1
+            },
+            onOpenInBrowser = { open(issue.htmlUrl, "Issue #${issue.number}") },
+        )
     }
 }
 

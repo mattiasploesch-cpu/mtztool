@@ -46,6 +46,7 @@ object GitHubApi {
         val htmlUrl: String,
         val author: String,
         val labels: List<String>,
+        val assignees: List<String>,
         val comments: Int,
         val updatedAt: String,
         val body: String,
@@ -80,6 +81,13 @@ object GitHubApi {
     )
 
     data class Label(val name: String, val color: String, val description: String)
+
+    data class Workflow(
+        val id: Long,
+        val name: String,
+        val path: String,
+        val state: String,
+    )
 
     private data class HttpResult(val code: Int, val body: String)
 
@@ -289,6 +297,110 @@ object GitHubApi {
                 }
             }
         }
+
+    /** Updates labels, assignees and/or state in one PATCH request. */
+    suspend fun updateIssue(
+        context: Context,
+        repo: String = configuredRepo(context),
+        number: Int,
+        labels: List<String>? = null,
+        assignees: List<String>? = null,
+        state: String? = null,
+    ): Result<Issue> = withContext(Dispatchers.IO) {
+        runCatching {
+            val payload = JSONObject().apply {
+                labels?.let { put("labels", JSONArray(it)) }
+                assignees?.let { put("assignees", JSONArray(it)) }
+                state?.let { put("state", it) }
+            }
+            val text = requireOk(
+                http(
+                    "PATCH",
+                    "$BASE/repos/${cleanRepo(repo)}/issues/$number",
+                    token(context),
+                    payload.toString(),
+                )
+            )
+            parseIssue(JSONObject(text))
+        }
+    }
+
+    /** People who may be assigned to an issue in this repository. */
+    suspend fun assignableUsers(
+        context: Context,
+        repo: String = configuredRepo(context),
+    ): Result<List<String>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val array = JSONArray(
+                requireOk(
+                    http(
+                        "GET",
+                        "$BASE/repos/${cleanRepo(repo)}/assignees?per_page=100",
+                        token(context),
+                    )
+                )
+            )
+            (0 until array.length()).mapNotNull { index ->
+                array.optJSONObject(index)?.optString("login")?.takeIf { it.isNotBlank() }
+            }
+        }
+    }
+
+    suspend fun workflows(
+        context: Context,
+        repo: String = configuredRepo(context),
+    ): Result<List<Workflow>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val json = JSONObject(
+                requireOk(
+                    http(
+                        "GET",
+                        "$BASE/repos/${cleanRepo(repo)}/actions/workflows?per_page=100",
+                        token(context),
+                    )
+                )
+            )
+            val array = json.optJSONArray("workflows") ?: JSONArray()
+            (0 until array.length()).mapNotNull { index ->
+                val workflow = array.optJSONObject(index) ?: return@mapNotNull null
+                Workflow(
+                    id = workflow.optLong("id"),
+                    name = workflow.optString("name"),
+                    path = workflow.optString("path"),
+                    state = workflow.optString("state"),
+                )
+            }
+        }
+    }
+
+    /** Triggers workflow_dispatch with arbitrary inputs. */
+    suspend fun dispatchWorkflow(
+        context: Context,
+        repo: String = configuredRepo(context),
+        workflowId: Long,
+        ref: String = "main",
+        inputs: Map<String, String> = emptyMap(),
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val payload = JSONObject().apply {
+                put("ref", ref.ifBlank { "main" })
+                if (inputs.isNotEmpty()) {
+                    put("inputs", JSONObject().apply {
+                        inputs.forEach { (key, value) -> put(key, value) }
+                    })
+                }
+            }
+            requireOk(
+                http(
+                    "POST",
+                    "$BASE/repos/${cleanRepo(repo)}/actions/workflows/$workflowId/dispatches",
+                    token(context),
+                    payload.toString(),
+                )
+            )
+            Unit
+        }
+    }
 
     // ── Pull requests ─────────────────────────────────────────
 
@@ -593,6 +705,10 @@ object GitHubApi {
         val labels = (0 until labelsArray.length()).mapNotNull { index ->
             labelsArray.optJSONObject(index)?.optString("name")?.takeIf { it.isNotBlank() }
         }
+        val assigneesArray = json.optJSONArray("assignees") ?: JSONArray()
+        val assignees = (0 until assigneesArray.length()).mapNotNull { index ->
+            assigneesArray.optJSONObject(index)?.optString("login")?.takeIf { it.isNotBlank() }
+        }
         return Issue(
             number = json.optInt("number"),
             title = json.optString("title"),
@@ -600,6 +716,7 @@ object GitHubApi {
             htmlUrl = json.optString("html_url"),
             author = json.optJSONObject("user")?.optString("login").orEmpty(),
             labels = labels,
+            assignees = assignees,
             comments = json.optInt("comments"),
             updatedAt = json.optString("updated_at"),
             body = json.optString("body"),

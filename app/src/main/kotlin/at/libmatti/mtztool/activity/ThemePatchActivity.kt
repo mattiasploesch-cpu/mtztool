@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -106,6 +107,8 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
     var wallpaperExt by remember { mutableStateOf("jpg") }
     var lockWallpaper by remember { mutableStateOf<ByteArray?>(null) }
     var lockWallpaperExt by remember { mutableStateOf("jpg") }
+    var font by remember { mutableStateOf<ByteArray?>(null) }
+    var fontName by remember { mutableStateOf("font.ttf") }
     var message by remember { mutableStateOf<String?>(null) }
     var exportName by remember { mutableStateOf("theme-patched.mtz") }
 
@@ -208,6 +211,38 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
         }
     }
 
+    val fontPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val loaded = withContext(Dispatchers.IO) {
+                runCatching {
+                    val name = ThemeApplier.getFileName(context, uri) ?: "font.ttf"
+                    val extension = name.substringAfterLast('.', "").lowercase()
+                    require(extension in setOf("ttf", "otf", "ttc")) {
+                        "Bitte eine .ttf-, .otf- oder .ttc-Schriftart wählen."
+                    }
+                    val bytes = context.contentResolver.openInputStream(uri)?.use {
+                        it.readBytes()
+                    } ?: error("Schriftart konnte nicht gelesen werden.")
+                    require(bytes.size <= 32 * 1024 * 1024) {
+                        "Die Schriftart ist zu groß (max. 32 MB)."
+                    }
+                    bytes to name
+                }
+            }
+            loaded.fold(
+                onSuccess = { (bytes, name) ->
+                    font = bytes
+                    fontName = name
+                    message = "Schriftart „$name“ ausgewählt."
+                },
+                onFailure = { message = it.message },
+            )
+        }
+    }
+
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream")
     ) { uri ->
@@ -234,6 +269,8 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
                         wallpaperExtension = wallpaperExt,
                         lockWallpaper = lockWallpaper,
                         lockWallpaperExtension = lockWallpaperExt,
+                        font = font,
+                        fontFileName = fontName,
                     )
                     val built = MtzPatcher.patch(sourceBytes, patch)
                     context.contentResolver.openOutputStream(uri)?.use { output ->
@@ -249,6 +286,7 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
                         if (built.removedEntries > 0) append(" ${built.removedEntries} Einträge entfernt.")
                         if (built.wallpaperReplaced) append(" Wallpaper ersetzt.")
                         if (built.lockWallpaperReplaced) append(" Lockscreen-Wallpaper ersetzt.")
+                        if (built.fontReplaced) append(" Schriftart ersetzt.")
                     }
                     AppLog.success(message!!)
                     ThemeSession.openBytes(
@@ -271,9 +309,9 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(R.string.patcher_title), fontWeight = FontWeight.Bold)
+                        Text("MTZ Theme Editor", fontWeight = FontWeight.Bold)
                         Text(
-                            text = "MTZ bearbeiten und neu packen",
+                            text = "Alles bearbeiten – Schrift, Wallpaper und Lockscreen importieren",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -445,6 +483,18 @@ private fun ThemePatchScreen(onBack: () -> Unit) {
                     onPick = { lockWallpaperPicker.launch(arrayOf("image/*")) },
                     onClear = { lockWallpaper = null },
                 )
+                FontPickerRow(
+                    name = fontName,
+                    active = font != null,
+                    onPick = { fontPicker.launch(arrayOf("*/*")) },
+                    onClear = { font = null },
+                )
+                Text(
+                    "Schriftarten werden unter fonts/ ersetzt. Wallpaper und " +
+                        "Lockscreen-Bilder werden direkt in das MTZ geschrieben.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -561,6 +611,47 @@ private fun ComponentToggleList(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FontPickerRow(
+    name: String,
+    active: Boolean,
+    onPick: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.TextFields,
+            contentDescription = null,
+            tint = if (active) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.width(10.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(if (active) "Schriftart · ersetzt" else "Schriftart")
+            if (active) {
+                Text(
+                    name,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                )
+            }
+        }
+        if (active) {
+            IconButton(onClick = onClear) {
+                Icon(Icons.Default.Delete, contentDescription = null)
+            }
+        }
+        OutlinedButton(onClick = onPick) {
+            Text(if (active) "Ändern" else "Wählen")
         }
     }
 }

@@ -1,0 +1,118 @@
+name: Android build
+
+on:
+  workflow_call:
+    inputs:
+      version_name:
+        description: "Optional versionName override"
+        type: string
+        default: ""
+      version_code:
+        description: "Optional versionCode override"
+        type: string
+        default: ""
+      suffix:
+        description: "Optional versionName suffix (nightly)"
+        type: string
+        default: ""
+      play:
+        description: "Also build the Play Store bundle"
+        type: boolean
+        default: true
+      upload_artifacts:
+        description: "Upload APK/AAB/lint artifacts"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+        with:
+          # The runner already ships the platforms/build-tools for compileSdk 36.
+          packages: "platform-tools"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # One Gradle invocation produces everything: debug APK, lint report,
+      # release APK and (optionally) the Play bundle. Lint and release no
+      # longer trigger their own full builds.
+      - name: Build, lint and package once
+        env:
+          MTZ_VERSION_NAME: ${{ inputs.version_name }}
+          MTZ_VERSION_CODE: ${{ inputs.version_code }}
+          MTZ_VERSION_NAME_SUFFIX: ${{ inputs.suffix }}
+        run: |
+          set -euo pipefail
+          chmod +x gradlew scripts/build-release.sh
+          args=()
+          if [[ -n "$MTZ_VERSION_NAME" ]]; then
+            args+=("-Pmtz.versionName=$MTZ_VERSION_NAME")
+          fi
+          if [[ -n "$MTZ_VERSION_CODE" ]]; then
+            args+=("-Pmtz.versionCode=$MTZ_VERSION_CODE")
+          fi
+          tasks=(:app:assembleDebug :app:lintDebug :app:assembleRelease)
+          if [[ "${{ inputs.play }}" == "true" ]]; then
+            tasks+=(:app:bundlePlaystore)
+          fi
+          ./gradlew --no-daemon "${tasks[@]}" "${args[@]}"
+          ./scripts/build-release.sh --checksums-only
+
+      - name: Upload debug APK
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtztool-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload release APK
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtztool-release
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Upload Play bundle
+        if: ${{ inputs.upload_artifacts && inputs.play }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtztool-aab
+          path: dist/*.aab
+          if-no-files-found: error
+
+      - name: Upload lint report
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: |
+            app/build/reports/lint-results-debug.html
+            app/build/reports/lint-results-debug.sarif
+          if-no-files-found: warn
+
+      - name: Upload checksums
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: |
+            dist/SHA256SUMS
+            dist/update.json
+          if-no-files-found: warn

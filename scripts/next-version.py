@@ -55,10 +55,17 @@ def read_current() -> tuple[str, int]:
 
 
 def last_tag() -> str:
+    # Do not use `git describe`: a checked-out branch may be behind the tag
+    # (for example while preparing a follow-up PR), and describe would then
+    # report no tag and reuse an already published version.
     try:
-        return run_git("describe", "--tags", "--abbrev=0", "--match", "v*")
+        tags = run_git("tag", "--sort=-v:refname", "--list", "v*").splitlines()
     except subprocess.CalledProcessError:
         return ""
+    for tag in tags:
+        if re.fullmatch(r"v\d+\.\d+\.\d+", tag.strip()):
+            return tag.strip()
+    return ""
 
 
 def version_code(name: str) -> int:
@@ -153,7 +160,18 @@ def main() -> int:
     args = parser.parse_args()
 
     base_name, base_code = read_current()
-    tag = args.from_tag if args.from_tag is not None else last_tag()
+    latest_tag = last_tag()
+    tag = args.from_tag if args.from_tag is not None else latest_tag
+    # The checked-in base can lag behind the newest release tag. Bump from the
+    # newest tag so a release never reuses an existing version.
+    if latest_tag:
+        latest_name = latest_tag.removeprefix("v")
+        try:
+            if parse_version(latest_name) > parse_version(base_name):
+                base_name = latest_name
+                base_code = version_code(latest_name)
+        except (ValueError, SystemExit):
+            pass
     commits = parse_commits(tag)
     level, security = level_for(commits, args.level)
     name = bump(base_name, level, base_code)

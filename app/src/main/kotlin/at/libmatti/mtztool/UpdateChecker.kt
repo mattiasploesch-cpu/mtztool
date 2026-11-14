@@ -280,6 +280,10 @@ object UpdateChecker {
                 size = asset.optLong("size", 0L),
             )
         }
+        val patchAsset = assetList.firstOrNull { asset ->
+            asset.name.startsWith("patch-${currentCode}-to-") &&
+                asset.name.endsWith(".patch", ignoreCase = true)
+        }
 
         val manifest = assetList.firstOrNull { it.name == "update.json" }
         if (manifest != null) {
@@ -287,6 +291,7 @@ object UpdateChecker {
                 val parsed = parseManifestObject(
                     JSONObject(fetchText(manifest.url)),
                     channel,
+                    baseUrl = manifest.url,
                     currentCode = currentCode,
                     fallbackHtml = release.optString("html_url"),
                     fallbackTag = release.optString("tag_name"),
@@ -294,7 +299,24 @@ object UpdateChecker {
                     fallbackPublishedAt = release.optString("published_at"),
                     fallbackChangelog = release.optString("body"),
                 )
-                if (parsed != null) return parsed
+                if (parsed != null) {
+                    // Older manifests may not contain the patch object yet. In
+                    // that case use the patch asset published next to the APK.
+                    return if (parsed.patch == null && patchAsset != null) {
+                        parsed.copy(
+                            patch = UpdatePatch(
+                                fromVersionCode = currentCode,
+                                toVersionCode = parsed.versionCode,
+                                fromVersionName = "",
+                                toVersionName = parsed.versionName,
+                                url = patchAsset.url,
+                                size = patchAsset.size,
+                            ),
+                        )
+                    } else {
+                        parsed
+                    }
+                }
             }
         }
 

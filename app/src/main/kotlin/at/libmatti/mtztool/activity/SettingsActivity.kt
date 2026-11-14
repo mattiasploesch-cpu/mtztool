@@ -935,6 +935,10 @@ private fun AccountSettings(message: (String) -> Unit) {
     var login by remember { mutableStateOf(AppSettings.getGithubLogin(context)) }
     var googleAccount by remember { mutableStateOf(AppSettings.getGoogleAccount(context)) }
     var crashAuto by remember { mutableStateOf(AppSettings.isCrashAutoReportEnabled(context)) }
+    val scope = rememberCoroutineScope()
+    var token by remember { mutableStateOf("") }
+    var tokenBusy by remember { mutableStateOf(false) }
+    var authError by remember { mutableStateOf<String?>(null) }
 
     SettingsSection(
         title = "GitHub",
@@ -964,6 +968,51 @@ private fun AccountSettings(message: (String) -> Unit) {
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text(if (signedIn) "Erneut anmelden" else "Mit GitHub anmelden") }
+        if (AppSettings.getGithubClientId(context).isBlank()) {
+            Text(
+                "Ohne OAuth-Client-ID kannst du dich direkt mit einem GitHub " +
+                    "Personal Access Token anmelden (Scope: repo, read:user, workflow).",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        OutlinedTextField(
+            value = token,
+            onValueChange = { token = it },
+            label = { Text("GitHub Personal Access Token") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedButton(
+            onClick = {
+                val candidate = token.trim()
+                if (candidate.isBlank() || tokenBusy) return@OutlinedButton
+                tokenBusy = true
+                authError = null
+                scope.launch {
+                    AppSettings.setGithubToken(context, candidate)
+                    GitHubApi.user(context).fold(
+                        onSuccess = { user ->
+                            AppSettings.setGithubLogin(context, user.login)
+                            signedIn = true
+                            login = user.login
+                            token = ""
+                            message("Mit GitHub angemeldet: ${user.login}")
+                        },
+                        onFailure = {
+                            AppSettings.setGithubToken(context, "")
+                            authError = it.message ?: "Token konnte nicht geprüft werden."
+                        },
+                    )
+                    tokenBusy = false
+                }
+            },
+            enabled = !tokenBusy && token.isNotBlank(),
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(if (tokenBusy) "Prüfe Token …" else "Mit Token anmelden") }
+        authError?.let {
+            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
+        }
         SetButtonRow(
             title = "GitHub-OAuth-Client-ID",
             subtitle = AppSettings.getGithubClientId(context).ifBlank { "nicht gesetzt" },

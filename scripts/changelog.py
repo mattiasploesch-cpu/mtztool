@@ -28,6 +28,12 @@ SECTIONS = [
     ("other", "Other", {"chore", "other"}),
 ]
 
+AUTHOR_ALIASES = {
+    "Matthias Plösch": "mattiasploesch-cpu",
+    "Matthias Ploesch": "mattiasploesch-cpu",
+    "mattiasploesch-cpu": "mattiasploesch-cpu",
+}
+
 TYPE_MAP = {
     "feat": "feature",
     "fix": "fix",
@@ -70,6 +76,7 @@ def commits_since(tag: str) -> list[dict]:
         if len(parts) < 4:
             continue
         sha, subject, body, author = parts[0], parts[1], parts[2], parts[3]
+        author = AUTHOR_ALIASES.get(author.strip(), author.strip())
         if subject.startswith("Merge pull request") or subject.startswith("Merge branch"):
             continue
         match = re.match(r"^(\w+)(?:\(([^)]+)\))?(!)?:\s*(.+)$", subject)

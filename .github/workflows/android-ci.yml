@@ -56,6 +56,8 @@ jobs:
           MTZ_VERSION_NAME: ${{ inputs.version_name }}
           MTZ_VERSION_CODE: ${{ inputs.version_code }}
           MTZ_VERSION_NAME_SUFFIX: ${{ inputs.suffix }}
+          MTZ_GITHUB_CLIENT_ID: ${{ vars.MTZ_GITHUB_CLIENT_ID }}
+          MTZ_GOOGLE_CLIENT_ID: ${{ vars.MTZ_GOOGLE_CLIENT_ID }}
         run: |
           set -euo pipefail
           chmod +x gradlew scripts/build-release.sh

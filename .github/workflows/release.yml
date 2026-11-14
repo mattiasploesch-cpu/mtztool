@@ -70,6 +70,13 @@ jobs:
             echo "::error::Ungültige Version: $version"
             exit 2
           fi
+          # A workflow_dispatch must never overwrite an existing release. The
+          # version resolver now bumps from the newest tag, and this guard is
+          # the last line of defence against duplicate v2.2.0 releases.
+          if [ "$REF_TYPE" != "tag" ] && git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "::error::Release v$version existiert bereits. Bitte neue Commits mergen oder einen anderen Bump wählen."
+            exit 2
+          fi
           IFS=. read -r major minor patch <<< "$version"
           code=$((major * 10000 + minor * 100 + patch))
           previous="$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -v "^v$version$" | head -1 || true)"
@@ -104,6 +111,8 @@ jobs:
         env:
           MTZ_VERSION_NAME: ${{ steps.version.outputs.version }}
           MTZ_VERSION_CODE: ${{ steps.version.outputs.code }}
+          MTZ_GITHUB_CLIENT_ID: ${{ vars.MTZ_GITHUB_CLIENT_ID }}
+          MTZ_GOOGLE_CLIENT_ID: ${{ vars.MTZ_GOOGLE_CLIENT_ID }}
         run: |
           chmod +x gradlew scripts/build-release.sh
           ./scripts/build-release.sh

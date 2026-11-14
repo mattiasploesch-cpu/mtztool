@@ -30,7 +30,7 @@ jobs:
       - name: Checkout base branch validation code
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.event.pull_request.base.ref }}
           persist-credentials: false
 
       - name: Validate that only one device file was added
@@ -112,7 +112,7 @@ jobs:
       - name: Checkout device-cloud validation code
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ github.event.pull_request.base.ref }}
           persist-credentials: false
 
       - name: Validate cloud backup/restore files

@@ -1,9 +1,10 @@
 name: Device registration
 
-# Device registration PRs are special: they may only add exactly one JSON
-# file below /devices. No code, no workflows, no other files. The validation
-# runs from the base branch and reads the PR file through the API, so no fork
-# code is ever checked out or executed.
+# Device PRs are special: registration may only add exactly one JSON file
+# below /devices. Backup and restore PRs target the device-cloud branch and may
+# update the device's state/log or add one restore marker. The validation runs
+# from the base branch and reads the PR files through the API, so no fork code
+# is ever checked out or executed.
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, edited]
@@ -19,7 +20,10 @@ concurrency:
 jobs:
   validate:
     name: Validate device file
-    if: startsWith(github.event.pull_request.title, 'device:')
+    if: >
+      startsWith(github.event.pull_request.title, 'device:') &&
+      !startsWith(github.event.pull_request.title, 'device: backup') &&
+      !startsWith(github.event.pull_request.title, 'device: restore')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -95,4 +99,91 @@ jobs:
           # not be the PR author, because GitHub forbids self-approval.
           GH_TOKEN="$MERGE_TOKEN" gh pr review "$PR" --repo "$REPO" --approve \
             --body "Automatisch geprüft: nur eine neue Device-Datei, Schema gültig."
+          GH_TOKEN="$MERGE_TOKEN" gh pr merge "$PR" --repo "$REPO" --squash --delete-branch
+
+  validate-cloud:
+    name: Validate device cloud
+    if: >
+      startsWith(github.event.pull_request.title, 'device: backup') ||
+      startsWith(github.event.pull_request.title, 'device: restore')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout device-cloud validation code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Validate cloud backup/restore files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$BASE_REF" != "device-cloud" ]; then
+            echo "::error::Backup-/Restore-PRs müssen gegen device-cloud gehen, nicht gegen '$BASE_REF'."
+            exit 1
+          fi
+
+          mapfile -t rows < <(
+            gh api "repos/$REPO/pulls/$PR/files?per_page=100" --paginate \
+              --jq '.[] | [.status, .filename, (.additions|tostring), (.deletions|tostring)] | @tsv'
+          )
+          if [ "${#rows[@]}" -lt 1 ] || [ "${#rows[@]}" -gt 3 ]; then
+            echo "::error::Ein Cloud-PR darf 1–3 Dateien enthalten, gefunden: ${#rows[@]}."
+            exit 1
+          fi
+
+          rm -rf /tmp/cloud
+          mkdir -p /tmp/cloud
+          for row in "${rows[@]}"; do
+            IFS=$'\t' read -r status file additions deletions <<< "$row"
+            echo "Datei: $file (status=$status, +$additions/-$deletions)"
+            if [ "$status" = "removed" ]; then
+              echo "::error::Cloud-Dateien dürfen nicht gelöscht werden."
+              exit 1
+            fi
+            if [[ ! "$file" =~ ^devices/[a-z0-9][a-z0-9._-]{2,80}/(state\.json|latest\.log|restores/[0-9]{8}-[0-9]{6}\.json)$ ]]; then
+              echo "::error::Nicht erlaubter Cloud-Pfad: $file"
+              exit 1
+            fi
+            if [ "$additions" -gt 20000 ]; then
+              echo "::error::Zu viele neue Zeilen in $file ($additions)."
+              exit 1
+            fi
+            target="/tmp/cloud/$file"
+            mkdir -p "$(dirname "$target")"
+            gh api "repos/$REPO/contents/$file?ref=$HEAD_SHA" --jq '.content' \
+              | base64 -d > "$target"
+          done
+
+          python3 scripts/validate-cloud.py --root /tmp/cloud
+
+      - name: Comment validation result
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh pr comment "$PR" --repo "$REPO" --body \
+            "Device-Cloud-Dateien geprüft: erlaubte Pfade, Größen und keine Secrets. ✅"
+
+      - name: Auto-merge cloud PR with machine token (optional)
+        env:
+          MERGE_TOKEN: ${{ secrets.DEVICE_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MERGE_TOKEN:-}" ]; then
+            echo "::notice::DEVICE_MERGE_TOKEN nicht gesetzt – der Owner merged den geprüften Cloud-PR manuell."
+            exit 0
+          fi
+          GH_TOKEN="$MERGE_TOKEN" gh pr review "$PR" --repo "$REPO" --approve \
+            --body "Automatisch geprüft: gültige Device-Cloud-Dateien, keine Secrets."
           GH_TOKEN="$MERGE_TOKEN" gh pr merge "$PR" --repo "$REPO" --squash --delete-branch

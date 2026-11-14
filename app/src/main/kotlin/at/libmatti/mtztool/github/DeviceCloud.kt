@@ -195,7 +195,7 @@ object DeviceCloud {
             """.trimIndent()
             val pr = GitHubApi.createPullRequest(
                 context = context,
-                title = "backup: ${label()} (${deviceHash(context)})",
+                title = "device: backup ${label()} (${deviceHash(context)})",
                 head = branch,
                 base = CLOUD_BRANCH,
                 body = body,
@@ -283,7 +283,7 @@ object DeviceCloud {
         writeFile(context, branch, path, marker.toString(2).toByteArray(), "restore: $slug")
         val pr = GitHubApi.createPullRequest(
             context = context,
-            title = "restore: ${label()} (${deviceHash(context)})",
+            title = "device: restore ${label()} (${deviceHash(context)})",
             head = branch,
             base = CLOUD_BRANCH,
             body = """

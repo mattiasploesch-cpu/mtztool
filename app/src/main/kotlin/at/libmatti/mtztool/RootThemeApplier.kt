@@ -704,25 +704,60 @@ object RootThemeApplier {
     // ── Theme refresh ────────────────────────────────────────
 
     private fun triggerThemeRefresh(notes: MutableList<String>) {
+        // MIUI's Theme Manager sends a MiuiConfiguration change before the
+        // broadcast. Without it the launcher can keep its old icon cache even
+        // though /data/system/theme/icons was written correctly.
+        if (sendMiuiThemeConfigurationChange()) {
+            notes += "MIUI-Theme-Konfiguration aktualisiert"
+        } else {
+            notes += "Hinweis: MIUI-Konfigurationswechsel nicht verfügbar"
+        }
+
         if (!prepareRoot()) {
             notes += "Hinweis: Root nicht verfügbar, Theme-Wechsel konnte nicht signalisiert werden."
             return
         }
         val script = """
-            am broadcast -a miui.intent.action.ACTION_THEME_CHANGED >/dev/null 2>&1
+            am force-stop com.miui.home >/dev/null 2>&1 || true
+            rm -rf /data/data/com.miui.home/cache/* >/dev/null 2>&1 || true
+            rm -rf /data/user/0/com.miui.home/cache/* >/dev/null 2>&1 || true
+            pkill -f 'com[.]android[.]systemui' >/dev/null 2>&1 || killall com.android.systemui >/dev/null 2>&1 || true
+            pkill -f 'com[.]miui[.]home' >/dev/null 2>&1 || killall com.miui.home >/dev/null 2>&1 || true
             sleep 1
-            pkill -f 'com[.]android[.]systemui' >/dev/null 2>&1 || killall com.android.systemui >/dev/null 2>&1
-            pkill -f 'com[.]miui[.]home' >/dev/null 2>&1 || killall com.miui.home >/dev/null 2>&1
+            am start -a android.intent.action.MAIN -c android.intent.category.HOME -p com.miui.home >/dev/null 2>&1 \
+                || am start -a android.intent.action.MAIN -c android.intent.category.HOME >/dev/null 2>&1 \
+                || true
             sleep 2
-            am start -a android.intent.action.MAIN -c android.intent.category.HOME >/dev/null 2>&1
+            monkey -p com.miui.home -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 || true
+            am broadcast -a miui.intent.action.ACTION_THEME_CHANGED >/dev/null 2>&1 || true
             true
         """.trimIndent()
         val result = runRoot(script)
         if (result.exitCode == 0) {
-            notes += "SystemUI und Launcher neu gestartet"
+            notes += "SystemUI und Launcher neu gestartet, Icon-Cache verworfen"
         } else {
             notes += "Hinweis: Neustart von SystemUI/Launcher fehlgeschlagen (${result.errorText()})"
         }
+    }
+
+    /**
+     * Calls the hidden MIUI API used by the Theme Manager after every theme
+     * apply. It invalidates the launcher/SystemUI theme resources and is what
+     * makes newly written icons visible immediately. Reflection is required
+     * because the class is not part of the public Android SDK.
+     */
+    private fun sendMiuiThemeConfigurationChange(): Boolean = try {
+        val clazz = Class.forName("android.content.res.MiuiConfiguration")
+        val method = clazz.getDeclaredMethod(
+            "sendThemeConfigurationChangeMsg",
+            java.lang.Long.TYPE,
+        )
+        method.isAccessible = true
+        method.invoke(null, 268466329L)
+        true
+    } catch (e: Throwable) {
+        Log.w(TAG, "MiuiConfiguration theme change failed", e)
+        false
     }
 
     // ── Root helpers ─────────────────────────────────────────

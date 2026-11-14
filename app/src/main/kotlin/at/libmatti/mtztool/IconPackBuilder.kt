@@ -1,6 +1,8 @@
 package at.libmatti.mtztool
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import com.android.apksig.ApkSigner
@@ -10,9 +12,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.FilterOutputStream
 import java.io.OutputStream
+import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.PrivateKey
+import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Locale
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
@@ -31,8 +36,11 @@ object IconPackBuilder {
 
     private const val TAG = "IconPackBuilder"
 
-    const val ICON_PACK_PACKAGE = "com.libmatti.mtztool.iconpack"
+    // Must match the package declared in assets/iconpack_manifest.bin.
+    const val ICON_PACK_PACKAGE = "com.niklas.mtztool.iconpack"
     private const val KEYSTORE_ASSET = "iconpack.p12"
+    private const val KEY_ASSET = "iconpack.key"
+    private const val CERT_ASSET = "iconpack.crt"
     private const val MANIFEST_ASSET = "iconpack_manifest.bin"
     private const val KEY_ALIAS = "iconpack"
     private const val KEY_PASSWORD = "mtztool"
@@ -120,15 +128,12 @@ object IconPackBuilder {
             var skipped = 0
 
             for ((index, icon) in rawIcons.withIndex()) {
-                val launchIntent = packageManager.getLaunchIntentForPackage(icon.packageName)
-                val component = launchIntent?.component
-                if (component == null) {
+                val components = launcherComponents(packageManager, icon.packageName)
+                if (components.isEmpty()) {
                     skipped++
-                    continue
+                } else {
+                    components.forEach { componentName -> matched += componentName to icon }
                 }
-                val componentName =
-                    "ComponentInfo{${component.packageName}/${component.className}}"
-                matched += componentName to icon
                 if ((index + 1) % 100 == 0) {
                     onLog("… ${index + 1}/${rawIcons.size} geprüft")
                 }
@@ -186,10 +191,44 @@ object IconPackBuilder {
                     skippedCount = skipped,
                 )
             )
-        } catch (e: Exception) {
+        } catch (e: VirtualMachineError) {
+            throw e
+        } catch (e: Throwable) {
             Log.e(TAG, "Icon pack build failed", e)
-            Result.failure(e)
+            Result.failure(
+                IllegalStateException(
+                    "Icon-Pack konnte nicht erstellt werden: " +
+                        (e.message ?: e.javaClass.simpleName),
+                    e,
+                )
+            )
         }
+    }
+
+    /**
+     * Returns every MAIN/LAUNCHER component of [packageName]. Launchers such as
+     * Nova and Smart Launcher match appfilter entries per component, so using
+     * only the default launch intent leaves some icons unthemed.
+     */
+    private fun launcherComponents(
+        packageManager: PackageManager,
+        packageName: String,
+    ): List<String> {
+        val intent = Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_LAUNCHER)
+            .setPackage(packageName)
+        val resolved = runCatching {
+            packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+        }.getOrDefault(emptyList())
+        val components = resolved.mapNotNull { info ->
+            val activity = info.activityInfo ?: return@mapNotNull null
+            "ComponentInfo{${activity.packageName}/${activity.name}}"
+        }.distinct()
+        if (components.isNotEmpty()) return components
+
+        val launch = packageManager.getLaunchIntentForPackage(packageName)?.component
+            ?: return emptyList()
+        return listOf("ComponentInfo{${launch.packageName}/${launch.className}}")
     }
 
     // ── Icon extraction ─────────────────────────────────────
@@ -375,12 +414,7 @@ object IconPackBuilder {
     }
 
     private fun sign(context: Context, input: File, output: File) {
-        val password = KEY_PASSWORD.toCharArray()
-        val keyStore = KeyStore.getInstance("PKCS12")
-        context.assets.open(KEYSTORE_ASSET).use { keyStore.load(it, password) }
-
-        val privateKey = keyStore.getKey(KEY_ALIAS, password) as PrivateKey
-        val certificate = keyStore.getCertificate(KEY_ALIAS) as X509Certificate
+        val (privateKey, certificate) = signingIdentity(context)
 
         val signer = ApkSigner.SignerConfig.Builder(
             KEY_ALIAS,
@@ -388,14 +422,49 @@ object IconPackBuilder {
             listOf(certificate),
         ).build()
 
-        ApkSigner.Builder(listOf(signer))
-            .setInputApk(input)
-            .setOutputApk(output)
-            .setV1SigningEnabled(true)
-            .setV2SigningEnabled(true)
-            .setV3SigningEnabled(false)
-            .setMinSdkVersion(23)
-            .build()
-            .sign()
+        try {
+            ApkSigner.Builder(listOf(signer))
+                .setInputApk(input)
+                .setOutputApk(output)
+                .setV1SigningEnabled(true)
+                .setV2SigningEnabled(true)
+                .setV3SigningEnabled(false)
+                .setMinSdkVersion(23)
+                .build()
+                .sign()
+        } catch (e: VirtualMachineError) {
+            throw e
+        } catch (e: Throwable) {
+            throw IllegalStateException(
+                "APK-Signierung fehlgeschlagen: " + (e.message ?: e.javaClass.simpleName),
+                e,
+            )
+        }
+    }
+
+    /**
+     * Loads the bundled signing identity as PKCS#8/X.509 first. Android's
+     * PKCS#12 implementation rejects some modern keytool encodings, which made
+     * builds fail only on the device. The old PKCS#12 asset stays as fallback.
+     */
+    private fun signingIdentity(context: Context): Pair<PrivateKey, X509Certificate> {
+        val direct = runCatching {
+            val keyBytes = context.assets.open(KEY_ASSET).use { it.readBytes() }
+            val certBytes = context.assets.open(CERT_ASSET).use { it.readBytes() }
+            val key = KeyFactory.getInstance("RSA")
+                .generatePrivate(PKCS8EncodedKeySpec(keyBytes))
+            val certificate = CertificateFactory.getInstance("X.509")
+                .generateCertificate(ByteArrayInputStream(certBytes)) as X509Certificate
+            key to certificate
+        }.getOrNull()
+        if (direct != null) return direct
+
+        Log.w(TAG, "PKCS#8 key asset unavailable; falling back to iconpack.p12")
+        val password = KEY_PASSWORD.toCharArray()
+        val keyStore = KeyStore.getInstance("PKCS12")
+        context.assets.open(KEYSTORE_ASSET).use { keyStore.load(it, password) }
+        val privateKey = keyStore.getKey(KEY_ALIAS, password) as PrivateKey
+        val certificate = keyStore.getCertificate(KEY_ALIAS) as X509Certificate
+        return privateKey to certificate
     }
 }

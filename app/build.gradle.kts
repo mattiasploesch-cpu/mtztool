@@ -18,9 +18,10 @@ val hasReleaseKeystore = keystorePropertiesFile.isFile &&
 // OAuth client IDs are injected at build time. They are public identifiers,
 // not secrets, and can be overridden with -Pmtz.githubClientId=... or env vars.
 val githubClientId: String =
-    (project.findProperty("mtz.githubClientId") as String?)
-        ?: System.getenv("MTZ_GITHUB_CLIENT_ID")
-        ?: ""
+    ((project.findProperty("mtz.githubClientId") as String?)
+        ?: System.getenv("MTZ_GITHUB_CLIENT_ID"))
+        ?.takeIf { it.isNotBlank() }
+        ?: "Ov23liqNpFobFteIMkc3"
 val googleClientId: String =
     (project.findProperty("mtz.googleClientId") as String?)
         ?: System.getenv("MTZ_GOOGLE_CLIENT_ID")

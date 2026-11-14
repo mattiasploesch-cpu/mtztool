@@ -111,6 +111,7 @@ jobs:
         env:
           MTZ_VERSION_NAME: ${{ steps.version.outputs.version }}
           MTZ_VERSION_CODE: ${{ steps.version.outputs.code }}
+          MTZ_RELEASE_BASE_URL: https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/
           MTZ_GITHUB_CLIENT_ID: ${{ vars.MTZ_GITHUB_CLIENT_ID }}
           MTZ_GOOGLE_CLIENT_ID: ${{ vars.MTZ_GOOGLE_CLIENT_ID }}
         run: |
@@ -155,7 +156,8 @@ jobs:
             --json-out "dist/patch-info.json"
           python3 scripts/add-patch.py dist/update.json "dist/patch-${old_code}-to-${CODE}.patch" \
             --from-code "$old_code" --to-code "$CODE" \
-            --from-version "$PREVIOUS" --to-version "$VERSION"
+            --from-version "$PREVIOUS" --to-version "$VERSION" \
+            --base-url "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/"
 
       - name: Regenerate checksums
         run: |

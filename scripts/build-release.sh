@@ -67,13 +67,18 @@ fi
 if [[ -n "$UNIVERSAL" ]]; then
   SHA="$(sha256sum "$UNIVERSAL" | awk '{print $1}')"
   SIZE="$(stat -c%s "$UNIVERSAL")"
+  APK_NAME="$(basename "$UNIVERSAL")"
+  APK_URL="$APK_NAME"
+  if [[ -n "${MTZ_RELEASE_BASE_URL:-}" ]]; then
+    APK_URL="${MTZ_RELEASE_BASE_URL%/}/$APK_NAME"
+  fi
   cat > "$DIST/update.json" <<JSON
 {
   "versionName": "$VERSION_NAME",
   "versionCode": $VERSION_CODE,
   "publishedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "changelog": "Siehe GitHub-Release.",
-  "apkUrl": "$(basename "$UNIVERSAL")",
+  "apkUrl": "$APK_URL",
   "apkSize": $SIZE,
   "sha256": "$SHA",
   "prerelease": false

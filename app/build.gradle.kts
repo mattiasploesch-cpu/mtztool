@@ -26,6 +26,16 @@ val googleClientId: String =
         ?: System.getenv("MTZ_GOOGLE_CLIENT_ID")
         ?: ""
 
+// Base version plus an optional suffix for nightly builds, e.g.
+// -Pmtz.versionNameSuffix=-nightly.20261114. Nightly builds keep the same
+// versionCode as the stable release so a later stable build can upgrade them.
+val appVersionName = "2.1.0"
+val appVersionCode = 20100
+val versionNameSuffix: String =
+    (project.findProperty("mtz.versionNameSuffix") as String?)
+        ?: System.getenv("MTZ_VERSION_NAME_SUFFIX")
+        ?: ""
+
 android {
     namespace = "at.libmatti.mtztool"
     compileSdk = 36
@@ -34,8 +44,8 @@ android {
         applicationId = "at.libmatti.mtztool"
         minSdk = 28
         targetSdk = 36
-        versionCode = 20100
-        versionName = "2.1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName + versionNameSuffix
 
         buildConfigField("String", "GITHUB_REPO", "\"mattiasploesch-cpu/mtztool\"")
         buildConfigField("String", "DEFAULT_UPDATE_CHANNEL", "\"stable\"")

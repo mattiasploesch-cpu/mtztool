@@ -29,6 +29,11 @@ verwalten und über GitHub teilen.
   und passt Spalten, Lesebreite und Werkzeuglisten an.
 - **Build-Varianten**: `debug`, `release` und der separate, minimierte
   `playstore`-Build (nur auf ausdrücklichen Build).
+- **Nightly-Builds**: täglich ein Pre-Release mit Debug- und Release-APK,
+  Datums-Suffix und SHA-256; ohne Support, ohne Play-Upload.
+- **Rollen und Rechte**: dokumentierte Hierarchie von Community bis Owner,
+  maschinenlesbare Access-Policy, Rulesets und wöchentlicher Audit
+  ([GOVERNANCE](.github/GOVERNANCE.md), [ACCESS_CONTROL](.github/ACCESS_CONTROL.md)).
 
 ## Builds
 
@@ -37,6 +42,7 @@ verwalten und über GitHub teilen.
 ./gradlew :app:assembleRelease        # GitHub-Release-APK
 ./gradlew :app:bundlePlaystore        # Play-Store-AAB (R8, Shrinking, gestrippt)
 ./scripts/build-release.sh            # alles + SHA256SUMS + update.json
+./scripts/build-nightly.sh             # Debug + Release mit nightly.YYYYMMDD
 ```
 
 `assembleDebug` baut **nicht** den Play-Store-Build. Die Play-Variante ist ein
@@ -59,17 +65,32 @@ Self-Update und ohne native Debug-Symbole.
 
 ```
 .github/
-  ISSUE_TEMPLATE/   Bug-, Feature- und Crash-Formulare
-  workflows/        Build, PR-Checks, CodeQL, Release, Labels, Stale, …
-  CODEOWNERS, labels.yml, dependabot.yml, …
+  ISSUE_TEMPLATE/   Bug, Feature, Crash, Theme, Zugriff/Rolle
+  workflows/        Build, Nightly, Release, PR-Checks, CodeQL, Scorecard,
+                    Dependency Review, Theme-Validierung, Access-Audit, …
+  rulesets/         Branch- und Tag-Schutz als importierbares JSON
+  GOVERNANCE.md     Rollenhierarchie und Entscheidungen
+  ACCESS_CONTROL.md Rechte, Secrets, Rulesets, Audits, Offboarding
+  access-policy.json  maschinenlesbare Soll-Rechte
+  CODEOWNERS, labels.yml, labeler.yml, dependabot.yml, …
 docs/               Architektur, Release, GitHub-Setup
-scripts/            Release- und Checksum-Tooling
+scripts/            Release, Nightly, Theme-Validierung, Access-Setup/Audit
 themes/             Auslieferungsordner für Theme-Browser und Uploads
+app-themes/         App-spezifische Themes
 ```
 
 Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ·
 [docs/RELEASE.md](docs/RELEASE.md) ·
-[docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
+[docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) ·
+[.github/GOVERNANCE.md](.github/GOVERNANCE.md) ·
+[.github/ACCESS_CONTROL.md](.github/ACCESS_CONTROL.md).
+
+## Nightly installieren
+
+Nightly-Builds liegen unter
+[Releases → nightly](https://github.com/mattiasploesch-cpu/mtztool/releases/tag/nightly).
+Immer `SHA256SUMS` prüfen. Nightly ist eine Vorabversion ohne Support und wird
+nicht im Play Store veröffentlicht.
 
 ## Lizenz
 

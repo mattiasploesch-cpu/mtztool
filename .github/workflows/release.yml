@@ -13,12 +13,22 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Signed release and Play bundle
     runs-on: ubuntu-latest
     timeout-minutes: 40
+
+    # Only the owner may approve a signing run. Required reviewers are
+    # configured by scripts/setup-github.sh.
+    environment: release
 
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +73,13 @@ jobs:
           cd dist
           sha256sum -c SHA256SUMS
 
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.apk
+            dist/*.aab
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -75,6 +92,15 @@ jobs:
         with:
           name: release-aab
           path: dist/*.aab
+          if-no-files-found: error
+
+      - name: Upload provenance and checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-integrity
+          path: |
+            dist/SHA256SUMS
+            dist/update.json
           if-no-files-found: error
 
       - name: Publish GitHub release

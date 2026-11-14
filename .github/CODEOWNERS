@@ -1,8 +1,39 @@
-# Every change is reviewed by the maintainer.
+# CODEOWNERS – Verantwortungsbereiche.
+# Regeln: Jede Person hier muss auch in .github/access-policy.json stehen.
+# Änderungen an dieser Datei benötigen einen PR mit Label "access" und
+# Owner-Review. Siehe .github/GOVERNANCE.md und .github/ACCESS_CONTROL.md.
+
+# Fallback: der Owner haftet für alles, was unten nicht zugeordnet ist.
 * @mattiasploesch-cpu
 
-# Build, signing and release definitions
+# App-Code und Oberfläche
+/app/src/main/kotlin/at/libmatti/mtztool/MainActivity.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/activity/ @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/ui/ @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/device/ @mattiasploesch-cpu
+
+# Themen, Rechte und Theme-Infrastruktur
+/app/src/main/kotlin/at/libmatti/mtztool/ThemePuller.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/ThemeComposer.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/ThemeLibrary.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/ThemeBrowser.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/ThemeRightsTool.kt @mattiasploesch-cpu
+/themes/ @mattiasploesch-cpu
+/app-themes/ @mattiasploesch-cpu
+
+# GitHub-Integration und In-App-Auth
+/app/src/main/kotlin/at/libmatti/mtztool/github/ @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/activity/GitHubActivity.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/activity/GitHubAuthActivity.kt @mattiasploesch-cpu
+/app/src/main/kotlin/at/libmatti/mtztool/activity/IssueEditorActivity.kt @mattiasploesch-cpu
+/.github/ @mattiasploesch-cpu
+
+# Build, Signatur, Release und Werkzeuge
 /app/build.gradle.kts @mattiasploesch-cpu
 /gradle/ @mattiasploesch-cpu
-/.github/workflows/ @mattiasploesch-cpu
 /scripts/ @mattiasploesch-cpu
+/keystore.properties.example @mattiasploesch-cpu
+
+# Dokumentation (Maintainer dürfen hier reviewen, sobald ernannt)
+/README.md @mattiasploesch-cpu
+/docs/ @mattiasploesch-cpu

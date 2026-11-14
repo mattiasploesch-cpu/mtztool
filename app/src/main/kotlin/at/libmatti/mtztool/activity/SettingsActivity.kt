@@ -471,9 +471,17 @@ private fun AppearanceSettings() {
         SetActionRow(
             icon = Icons.Default.Palette,
             title = "App-Theme Studio",
-            subtitle = "Alle Farben per Picker ändern und einreichen",
+            subtitle = "Alle Farben inklusive Uhr per Picker ändern und einreichen",
             onClick = {
                 context.startActivity(Intent(context, AppThemeStudioActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "Wallpaper & Theme patchen",
+            subtitle = "Wallpaper ersetzen, Komponenten entfernen und .mtz exportieren",
+            onClick = {
+                context.startActivity(Intent(context, ThemePatchActivity::class.java))
             },
         )
     }

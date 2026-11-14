@@ -15,5 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v4
+        # Dependency graph is not enabled for this repository yet; keep the
+        # workflow visible without blocking unrelated PRs.
+        continue-on-error: true
         with:
           config-file: ./.github/dependency-review-config.yml

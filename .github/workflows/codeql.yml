@@ -33,6 +33,10 @@ jobs:
           java-version: "17"
 
       - uses: android-actions/setup-android@v3
+        with:
+          # 'tools' no longer exists in current SDK cmdline-tools; the runner
+          # already has platforms/build-tools for compileSdk 36.
+          packages: "platform-tools"
 
       - uses: gradle/actions/setup-gradle@v4
 

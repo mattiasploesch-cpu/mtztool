@@ -16,11 +16,11 @@ jobs:
     steps:
       - uses: actions/first-interaction@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: >
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: >
             Danke für dein erstes Issue! Bitte prüfe, ob alle Pflichtfelder
             ausgefüllt sind und ob Logs bzw. der Stacktrace beiliegen.
-          pr-message: >
+          pr_message: >
             Danke für deinen ersten Pull Request! Bitte stelle sicher, dass
             `./gradlew :app:assembleDebug` lokal läuft und die Checkliste im
             PR-Template ausgefüllt ist.

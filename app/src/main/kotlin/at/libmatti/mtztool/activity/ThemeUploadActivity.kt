@@ -63,6 +63,7 @@ import at.libmatti.mtztool.ui.theme.MTZToolTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.util.Locale
 
 class ThemeUploadActivity : LocalizedActivity() {
@@ -107,7 +108,17 @@ private fun ThemeUploadScreen(onBack: () -> Unit) {
             val bytes = withContext(Dispatchers.IO) {
                 runCatching {
                     context.contentResolver.openInputStream(uri)?.use { input ->
-                        input.readNBytes(3 * 1024 * 1024 + 1)
+                        val output = ByteArrayOutputStream()
+                        val buffer = ByteArray(64 * 1024)
+                        var total = 0
+                        while (true) {
+                            val read = input.read(buffer)
+                            if (read <= 0) break
+                            total += read
+                            if (total > 3 * 1024 * 1024) break
+                            output.write(buffer, 0, read)
+                        }
+                        output.toByteArray()
                     }
                 }.getOrNull()
             }

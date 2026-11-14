@@ -19,8 +19,10 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -86,6 +88,24 @@ private val tools = listOf(
         R.string.icon_pack_desc,
         Icons.Default.Apps,
         IconPackActivity::class.java
+    ),
+    ToolEntry(
+        R.string.tool_studio,
+        R.string.tool_studio_desc,
+        Icons.Default.Palette,
+        ThemeStudioActivity::class.java
+    ),
+    ToolEntry(
+        R.string.tool_store,
+        R.string.tool_store_desc,
+        Icons.Default.Store,
+        ThemeBrowserActivity::class.java
+    ),
+    ToolEntry(
+        R.string.tool_rights,
+        R.string.tool_rights_desc,
+        Icons.Default.VerifiedUser,
+        ThemeRightsActivity::class.java
     )
 )
 

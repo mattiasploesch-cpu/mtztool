@@ -17,13 +17,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +36,7 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Edit
@@ -100,6 +105,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import at.libmatti.mtztool.activity.ApplyThemeActivity
 import at.libmatti.mtztool.activity.BugReportActivity
+import at.libmatti.mtztool.activity.GitHubActivity
+import at.libmatti.mtztool.activity.IssueEditorActivity
+import at.libmatti.mtztool.activity.ThemeBrowserActivity
+import at.libmatti.mtztool.activity.ThemeRightsActivity
+import at.libmatti.mtztool.activity.ThemeStudioActivity
 import at.libmatti.mtztool.activity.CreditsActivity
 import at.libmatti.mtztool.activity.DeveloperActivity
 import at.libmatti.mtztool.activity.IconPackActivity
@@ -114,7 +124,9 @@ import at.libmatti.mtztool.activity.ThemePatchActivity
 import at.libmatti.mtztool.activity.ThemePreviewActivity
 import at.libmatti.mtztool.activity.ToolsActivity
 import at.libmatti.mtztool.activity.UpdateActivity
-import at.libmatti.mtztool.ui.LogConsole
+import at.libmatti.mtztool.device.DeviceProfile
+import at.libmatti.mtztool.github.GitHubApi
+import at.libmatti.mtztool.ui.rememberDeviceProfile
 import at.libmatti.mtztool.ui.theme.MTZToolTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,6 +141,7 @@ class MainActivity : LocalizedActivity() {
     private var pendingWarning by mutableStateOf<LibraryImport?>(null)
     private var pendingError by mutableStateOf<String?>(null)
     private var pendingErrorCodes by mutableStateOf<List<String>>(emptyList())
+    private var pendingCrash by mutableStateOf<CrashReporter.Report?>(null)
 
     private val filePicker = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -148,6 +161,7 @@ class MainActivity : LocalizedActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         AppLog.syncFrom(this)
+        CrashReporter.install(this)
         ShizukuHelper.selectedProvider = AppSettings.getPrivilegeProvider(this)
 
         if (!AppSettings.isSetupCompleted(this)) {
@@ -188,6 +202,34 @@ class MainActivity : LocalizedActivity() {
                         onOpenDeveloper = { startActivity(Intent(this, DeveloperActivity::class.java)) },
                         onOpenBugReport = { startActivity(Intent(this, BugReportActivity::class.java)) },
                         onOpenUpdates = { startActivity(Intent(this, UpdateActivity::class.java)) },
+                        onOpenStudio = { startActivity(Intent(this, ThemeStudioActivity::class.java)) },
+                        onOpenLibrary = { startActivity(Intent(this, ThemeBrowserActivity::class.java)) },
+                        onOpenRights = { startActivity(Intent(this, ThemeRightsActivity::class.java)) },
+                        onOpenGitHub = { startActivity(Intent(this, GitHubActivity::class.java)) },
+                        onNewIssue = {
+                            startActivity(
+                                Intent(this, IssueEditorActivity::class.java)
+                                    .putExtra(IssueEditorActivity.EXTRA_KIND, "BUG")
+                            )
+                        },
+                        crashReport = pendingCrash,
+                        onDismissCrash = {
+                            CrashReporter.clear(this)
+                            pendingCrash = null
+                        },
+                        onCreateCrashIssue = { report ->
+                            CrashReporter.clear(this)
+                            pendingCrash = null
+                            startActivity(
+                                Intent(this, IssueEditorActivity::class.java)
+                                    .putExtra(IssueEditorActivity.EXTRA_KIND, "CRASH")
+                                    .putExtra(
+                                        IssueEditorActivity.EXTRA_TITLE,
+                                        "Absturz: " + report.exception.take(60),
+                                    )
+                                    .putExtra(IssueEditorActivity.EXTRA_CRASH, report.stacktrace)
+                            )
+                        },
                         onCheckUpdates = { maybeCheckUpdates(manual = true) },
                         updateChecking = updateChecking,
                         availableUpdate = availableUpdate,
@@ -209,6 +251,35 @@ class MainActivity : LocalizedActivity() {
                     )
                 }
             }
+        }
+        maybeReportCrash()
+    }
+
+    /** Creates an issue automatically for the last crash when signed in. */
+    private fun maybeReportCrash() {
+        val report = CrashReporter.pending(this) ?: return
+        pendingCrash = report
+        if (!AppSettings.isCrashAutoReportEnabled(this)) return
+        if (!GitHubApi.isSignedIn(this)) return
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                GitHubApi.createIssue(
+                    context = this@MainActivity,
+                    title = "[Crash] " + report.exception.take(80),
+                    body = CrashReporter.issueBody(this@MainActivity, report),
+                    labels = listOf("bug", "crash"),
+                )
+            }
+            result.fold(
+                onSuccess = { issue ->
+                    AppLog.success("Crash-Issue automatisch erstellt: #${issue.number}")
+                    CrashReporter.clear(this@MainActivity)
+                    pendingCrash = null
+                },
+                onFailure = {
+                    AppLog.warn("Automatisches Crash-Issue fehlgeschlagen: ${it.message}")
+                },
+            )
         }
     }
 
@@ -429,8 +500,17 @@ private fun MainScreen(
     pendingError: String?,
     pendingErrorCodes: List<String>,
     onDismissError: () -> Unit,
+    onOpenStudio: () -> Unit,
+    onOpenLibrary: () -> Unit,
+    onOpenRights: () -> Unit,
+    onOpenGitHub: () -> Unit,
+    onNewIssue: () -> Unit,
+    crashReport: CrashReporter.Report?,
+    onDismissCrash: () -> Unit,
+    onCreateCrashIssue: (CrashReporter.Report) -> Unit,
 ) {
     val context = LocalContext.current
+    val profile = rememberDeviceProfile()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val developerMode = AppSettings.isDeveloperModeEnabled(context)
@@ -476,6 +556,11 @@ private fun MainScreen(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
+                ) {
                 DrawerHeader(provider)
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 NavigationDrawerItem(
@@ -492,6 +577,26 @@ private fun MainScreen(
                     onClick = {
                         scope.launch { drawerState.close() }
                         onOpenTools()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Store, contentDescription = null) },
+                    label = { Text("Theme Store") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onOpenLibrary()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Cloud, contentDescription = null) },
+                    label = { Text("GitHub & Issues") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onOpenGitHub()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                 )
@@ -559,13 +664,14 @@ private fun MainScreen(
                         )
                     }
                 }
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.height(12.dp))
                 Text(
                     text = "MTZ Tool ${versionName(context)}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(28.dp),
                 )
+                }
             }
         },
     ) {
@@ -622,11 +728,25 @@ private fun MainScreen(
                 )
             },
         ) { innerPadding ->
-            LazyColumn(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                contentPadding = PaddingValues(start = 18.dp, end = 18.dp, top = 8.dp, bottom = 28.dp),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (profile.contentMaxWidthDp == Int.MAX_VALUE) Modifier
+                        else Modifier.widthIn(max = profile.contentMaxWidthDp.dp)
+                    ),
+                contentPadding = PaddingValues(
+                    start = profile.horizontalPaddingDp.dp,
+                    end = profile.horizontalPaddingDp.dp,
+                    top = 8.dp,
+                    bottom = 28.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { HeroCard(theme, summary, importing, onPickFile) }
@@ -639,16 +759,6 @@ private fun MainScreen(
                             onDismiss = onDismissUpdate,
                         )
                     }
-                }
-
-                item {
-                    WorkspaceCard(
-                        theme = theme,
-                        summary = summary,
-                        importing = importing,
-                        onPickFile = onPickFile,
-                        onClear = { ThemeSession.clear() },
-                    )
                 }
 
                 item {
@@ -706,6 +816,31 @@ private fun MainScreen(
                     }
                 }
 
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.Palette,
+                            title = "Theme Studio",
+                            subtitle = "Gerätetheme pullen, eigene Themes bauen",
+                            enabled = !importing,
+                            onClick = onOpenStudio,
+                        )
+                        ActionTile(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.Store,
+                            title = "Theme-Bibliothek",
+                            subtitle = "Themes dauerhaft speichern & entdecken",
+                            enabled = true,
+                            onClick = onOpenLibrary,
+                        )
+                    }
+                }
+
+                item {
+                    GitHubCard(onOpen = onOpenGitHub, onNewIssue = onNewIssue)
+                }
+
                 if (!shellReady) {
                     item {
                         PrivilegeWarningCard(
@@ -724,33 +859,43 @@ private fun MainScreen(
                 }
 
                 item {
-                    Text(
-                        text = "Werkzeuge",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = onOpenTools, modifier = Modifier.weight(1f)) {
+                            Text("Alle Tools") 
+                        }
+                        OutlinedButton(onClick = onOpenSettings, modifier = Modifier.weight(1f)) {
+                            Text("Einstellungen")
+                        }
+                    }
                 }
-
-                item {
-                    ToolShortcutCard(
-                        onOpenTool = onOpenTool,
-                        onOpenTools = onOpenTools,
-                    )
-                }
-
-                item {
-                    Text(
-                        text = "Aktivität",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
-                }
-
-                item { LogConsole(height = 230) }
+            }
             }
         }
+    }
+
+    crashReport?.let { report ->
+        AlertDialog(
+            onDismissRequest = onDismissCrash,
+            icon = { Icon(Icons.Default.Error, contentDescription = null) },
+            title = { Text("Letzter Absturz") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(report.summary())
+                    Text(
+                        "Du kannst den Absturz als Issue mit Stacktrace und Log melden.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { onCreateCrashIssue(report) }) {
+                    Text("Issue erstellen")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissCrash) { Text("Verwerfen") }
+            },
+        )
     }
 
     if (confirmApply && theme != null) {
@@ -1198,9 +1343,53 @@ private fun ActionTile(
 
 @Composable
 private fun ToolShortcutCard(
+    profile: DeviceProfile,
     onOpenTool: (Class<*>) -> Unit,
     onOpenTools: () -> Unit,
 ) {
+    data class Shortcut(
+        val icon: ImageVector,
+        val title: String,
+        val subtitle: String,
+        val onClick: () -> Unit,
+    )
+
+    val shortcuts = listOf(
+        Shortcut(
+            Icons.Default.Search,
+            stringResource(R.string.tool_inspector),
+            stringResource(R.string.tool_inspector_desc),
+        ) { onOpenTool(ThemeInspectorActivity::class.java) },
+        Shortcut(
+            Icons.Default.Edit,
+            stringResource(R.string.patcher_title),
+            stringResource(R.string.patcher_intro),
+        ) { onOpenTool(ThemePatchActivity::class.java) },
+        Shortcut(
+            Icons.Default.FileDownload,
+            stringResource(R.string.tool_extractor),
+            stringResource(R.string.tool_extractor_desc),
+        ) { onOpenTool(ThemeExtractorActivity::class.java) },
+        Shortcut(
+            Icons.Default.CompareArrows,
+            stringResource(R.string.tool_compare),
+            stringResource(R.string.tool_compare_desc),
+        ) { onOpenTool(ThemeCompareActivity::class.java) },
+        Shortcut(
+            Icons.Default.VerifiedUser,
+            stringResource(R.string.tool_mra_checker),
+            stringResource(R.string.tool_mra_checker_desc),
+        ) { onOpenTool(MraCheckerActivity::class.java) },
+        Shortcut(
+            Icons.Default.PhotoLibrary,
+            stringResource(R.string.tool_previews),
+            stringResource(R.string.tool_previews_desc),
+        ) { onOpenTool(ThemePreviewActivity::class.java) },
+    )
+
+    // Phones get a short list; tablets and desktop windows show every tool.
+    val visible = if (profile.isExpanded) shortcuts else shortcuts.take(3)
+
     Card(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
@@ -1208,40 +1397,17 @@ private fun ToolShortcutCard(
         ),
     ) {
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
-            ToolRow(
-                Icons.Default.Search,
-                stringResource(R.string.tool_inspector),
-                stringResource(R.string.tool_inspector_desc),
-                onClick = { onOpenTool(ThemeInspectorActivity::class.java) },
-            )
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
-            ToolRow(
-                Icons.Default.CompareArrows,
-                stringResource(R.string.tool_compare),
-                stringResource(R.string.tool_compare_desc),
-                onClick = { onOpenTool(ThemeCompareActivity::class.java) },
-            )
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
-            ToolRow(
-                Icons.Default.VerifiedUser,
-                stringResource(R.string.tool_mra_checker),
-                stringResource(R.string.tool_mra_checker_desc),
-                onClick = { onOpenTool(MraCheckerActivity::class.java) },
-            )
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
-            ToolRow(
-                Icons.Default.FileDownload,
-                stringResource(R.string.tool_extractor),
-                stringResource(R.string.tool_extractor_desc),
-                onClick = { onOpenTool(ThemeExtractorActivity::class.java) },
-            )
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
-            ToolRow(
-                Icons.Default.PhotoLibrary,
-                stringResource(R.string.tool_previews),
-                stringResource(R.string.tool_previews_desc),
-                onClick = { onOpenTool(ThemePreviewActivity::class.java) },
-            )
+            visible.forEachIndexed { index, shortcut ->
+                if (index > 0) {
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
+                }
+                ToolRow(
+                    shortcut.icon,
+                    shortcut.title,
+                    shortcut.subtitle,
+                    onClick = shortcut.onClick,
+                )
+            }
             HorizontalDivider(modifier = Modifier.padding(horizontal = 18.dp))
             ToolRow(
                 Icons.Default.Build,
@@ -1249,6 +1415,49 @@ private fun ToolShortcutCard(
                 stringResource(R.string.tools_desc),
                 onClick = onOpenTools,
             )
+        }
+    }
+}
+
+@Composable
+private fun GitHubCard(onOpen: () -> Unit, onNewIssue: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Cloud,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "GitHub & Community",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            }
+            Text(
+                "Issues in der App erstellen und verfolgen, Pull Requests prüfen, " +
+                    "Actions ansehen und Themes hochladen.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onOpen, modifier = Modifier.weight(1f)) {
+                    Text("GitHub öffnen")
+                }
+                OutlinedButton(onClick = onNewIssue, modifier = Modifier.weight(1f)) {
+                    Text("Neues Issue")
+                }
+            }
         }
     }
 }

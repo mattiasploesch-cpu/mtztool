@@ -1,0 +1,8 @@
+# Every change is reviewed by the maintainer.
+* @mattiasploesch-cpu
+
+# Build, signing and release definitions
+/app/build.gradle.kts @mattiasploesch-cpu
+/gradle/ @mattiasploesch-cpu
+/.github/workflows/ @mattiasploesch-cpu
+/scripts/ @mattiasploesch-cpu

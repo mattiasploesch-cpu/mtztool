@@ -1,0 +1,115 @@
+name: Bug Report
+description: Etwas funktioniert nicht wie erwartet
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Bericht. Bitte fülle **alle Pflichtfelder** aus – ohne
+        Reproduktionsschritte lässt sich der Fehler meist nicht nachstellen.
+
+        In der App kannst du ein Issue direkt über **GitHub → Neues Issue**
+        erstellen; Gerätedaten und Log werden dort automatisch angehängt.
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App-Version
+      description: Einstellungen → Über die App
+      placeholder: "2.1.0 (20100)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device-class
+    attributes:
+      label: Gerät
+      options:
+        - Smartphone
+        - Tablet
+        - Faltbar
+        - TV
+        - Desktop
+        - Anderes
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Was ist passiert?
+      description: Beschreibe das beobachtete Verhalten.
+      placeholder: Beim Anwenden eines Themes …
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Reproduzieren
+      placeholder: |
+        1. App öffnen
+        2. Theme importieren
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+      description: Fehlermeldungen bitte wörtlich zitieren.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Häufigkeit
+      options:
+        - Immer
+        - Meistens
+        - Manchmal
+        - Einmalig
+    validations:
+      required: true
+
+  - type: dropdown
+    id: access
+    attributes:
+      label: Zugriffsmethode
+      options:
+        - Root
+        - Shizuku
+        - ADB
+        - Dhizuku
+        - Keine
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log / Stacktrace
+      description: Wird automatisch angehängt, wenn du das Issue in der App erstellst.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe nach bestehenden Issues gesucht.
+          required: true
+        - label: Ich nutze die aktuelle Version.
+          required: true

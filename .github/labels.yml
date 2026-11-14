@@ -1,0 +1,67 @@
+- name: bug
+  color: "d73a4a"
+  description: "Etwas funktioniert nicht wie erwartet"
+
+- name: crash
+  color: "b60205"
+  description: "Die App wurde unerwartet beendet"
+
+- name: enhancement
+  color: "a2eeef"
+  description: "Neue Funktion oder Verbesserung"
+
+- name: theme
+  color: "8e44ad"
+  description: "Themes, MTZ-Aufbau, Rechte oder Theme Manager"
+
+- name: github-integration
+  color: "2f81f7"
+  description: "Issue-Tracker, PRs, Actions oder Auth"
+
+- name: device-layout
+  color: "1d76db"
+  description: "Smartphone, Tablet, Faltbar, TV oder Desktop-Layout"
+
+- name: needs-triage
+  color: "fbca04"
+  description: "Wurde noch nicht eingeordnet"
+
+- name: needs-info
+  color: "d4c5f9"
+  description: "Weitere Angaben werden benötigt"
+
+- name: good first issue
+  color: "7057ff"
+  description: "Guter Einstieg für neue Beitragende"
+
+- name: dependencies
+  color: "0366d6"
+  description: "Abhängigkeiten oder Actions aktualisiert"
+
+- name: gradle
+  color: "0e8a16"
+  description: "Build-System"
+
+- name: github-actions
+  color: "2088ff"
+  description: "CI/CD"
+
+- name: stale
+  color: "ededed"
+  description: "Seit längerer Zeit inaktiv"
+
+- name: security
+  color: "ee0701"
+  description: "Sicherheitsrelevant"
+
+- name: pinned
+  color: "0e8a16"
+  description: "Wird nicht automatisch geschlossen"
+
+- name: playstore
+  color: "3ddc84"
+  description: "Google-Play-Build oder Store-Themen"
+
+- name: release
+  color: "5319e7"
+  description: "Release-Vorbereitung"

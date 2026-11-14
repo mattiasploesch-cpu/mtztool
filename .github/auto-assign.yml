@@ -1,0 +1,8 @@
+addReviewers: true
+addAssignees: author
+reviewers:
+  - mattiasploesch-cpu
+numberOfReviewers: 1
+skipKeywords:
+  - wip
+  - draft

@@ -283,6 +283,42 @@ object ShizukuHelper {
 
     // ── Shell Command Execution ──────────────────────────────
 
+    /**
+     * Reads a file through the privileged shell as raw bytes. Used by the
+     * theme puller to copy `/data/system/theme` into an .mtz.
+     */
+    fun readFileBytes(path: String, maxBytes: Long = 48L * 1024 * 1024): Result<ByteArray> {
+        return try {
+            val process = newProcess(arrayOf("sh", "-c", "cat '$path'"), null, null)
+            val bytes = process.inputStream.use { stream ->
+                val output = java.io.ByteArrayOutputStream()
+                val buffer = ByteArray(64 * 1024)
+                var total = 0L
+                while (true) {
+                    val read = stream.read(buffer)
+                    if (read <= 0) break
+                    total += read
+                    if (total > maxBytes) {
+                        throw java.io.IOException("Datei zu groß: $path")
+                    }
+                    output.write(buffer, 0, read)
+                }
+                output.toByteArray()
+            }
+            val error = process.errorStream.bufferedReader().use { it.readText() }.trim()
+            val exitCode = process.waitFor()
+            if (exitCode == 0) {
+                Result.success(bytes)
+            } else {
+                Result.failure(
+                    Exception(error.ifBlank { "Lesen fehlgeschlagen (exit $exitCode)" })
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     data class ShellResult(
         val exitCode: Int,
         val stdout: String,

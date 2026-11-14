@@ -152,6 +152,48 @@
             android:theme="@style/Theme.MTZTool" />
 
         <activity
+            android:name=".activity.ThemeStudioActivity"
+            android:exported="false"
+            android:label="Theme Studio"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeBrowserActivity"
+            android:exported="false"
+            android:label="Theme-Bibliothek"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeRightsActivity"
+            android:exported="false"
+            android:label="Rechte-Tool"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.GitHubActivity"
+            android:exported="false"
+            android:label="GitHub"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.GitHubAuthActivity"
+            android:exported="false"
+            android:label="Anmeldung"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.IssueEditorActivity"
+            android:exported="false"
+            android:label="Issue erstellen"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.InAppBrowserActivity"
+            android:exported="false"
+            android:label="Browser"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
             android:name=".activity.ApplyThemeActivity"
             android:exported="false"
             android:excludeFromRecents="true"

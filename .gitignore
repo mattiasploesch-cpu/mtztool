@@ -4,3 +4,11 @@ build
 gradle/wrapper/gradle-wrapper.jar
 application.backup
 app/build
+# Release artifacts
+dist/
+*.aab
+app/release/
+
+# Local/signing configuration
+local.properties
+keystore.properties

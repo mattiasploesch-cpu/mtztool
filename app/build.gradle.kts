@@ -15,6 +15,17 @@ val keystoreProperties = Properties().apply {
 val hasReleaseKeystore = keystorePropertiesFile.isFile &&
     keystoreProperties.getProperty("storeFile")?.let { rootProject.file(it).isFile } == true
 
+// OAuth client IDs are injected at build time. They are public identifiers,
+// not secrets, and can be overridden with -Pmtz.githubClientId=... or env vars.
+val githubClientId: String =
+    (project.findProperty("mtz.githubClientId") as String?)
+        ?: System.getenv("MTZ_GITHUB_CLIENT_ID")
+        ?: ""
+val googleClientId: String =
+    (project.findProperty("mtz.googleClientId") as String?)
+        ?: System.getenv("MTZ_GOOGLE_CLIENT_ID")
+        ?: ""
+
 android {
     namespace = "at.libmatti.mtztool"
     compileSdk = 36
@@ -23,12 +34,16 @@ android {
         applicationId = "at.libmatti.mtztool"
         minSdk = 28
         targetSdk = 36
-        versionCode = 20000
-        versionName = "2.0.0"
+        versionCode = 20100
+        versionName = "2.1.0"
 
         buildConfigField("String", "GITHUB_REPO", "\"mattiasploesch-cpu/mtztool\"")
         buildConfigField("String", "DEFAULT_UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("String", "SOURCE_URL", "\"https://github.com/mattiasploesch-cpu/mtztool\"")
+        buildConfigField("String", "GITHUB_CLIENT_ID", "\"$githubClientId\"")
+        buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
+        // Only the dedicated Play Store build type flips this to true.
+        buildConfigField("boolean", "PLAY_BUILD", "false")
     }
 
     signingConfigs {
@@ -43,6 +58,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ""
+            isMinifyEnabled = false
+            isDebuggable = true
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -56,23 +76,34 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
-        debug {
-            applicationIdSuffix = ""
-            isMinifyEnabled = false
+        // Play Store only. It is a separate build type, so "assembleDebug"
+        // and regular release builds never build the Play variant. Optimised
+        // for the smallest possible upload: R8 full mode, resource shrinking,
+        // stripped native symbols and per-device AAB splits.
+        create("playstore") {
+            initWith(getByName("release"))
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isCrunchPngs = true
+            isDebuggable = false
+            matchingFallbacks += listOf("release")
+            buildConfigField("boolean", "PLAY_BUILD", "true")
+            ndk {
+                debugSymbolLevel = "NONE"
+            }
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-            isUniversalApk = true
-        }
-        // AGP 9 no longer exposes language APK splits. Language splits are
-        // produced from the release bundle with bundletool in CI (and can be
-        // generated locally with ./scripts/build-release.sh --splits).
-    }
+    // No ABI APK splits: they are incompatible with Android App Bundles and
+    // made `bundlePlaystore` fail. The Play bundle performs its own ABI,
+    // language and density splitting; the GitHub release ships one universal
+    // APK.
+
 
     bundle {
         language {
@@ -100,6 +131,13 @@ android {
         buildConfig = true
     }
 
+    // Release builds skip lintVital so offline builds and CI bundles do not
+    // depend on downloading the lint tool. Lint runs in its own CI job.
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = true
+    }
+
     androidResources {
         noCompress += "mtz"
         generateLocaleConfig = true
@@ -111,6 +149,11 @@ android {
     }
 
     packaging {
+        jniLibs {
+            // Store the .so files uncompressed in the APK and let the bundle
+            // split them by ABI; no legacy packaging, no duplicate symbols.
+            useLegacyPackaging = false
+        }
         resources {
             excludes += setOf(
                 "META-INF/AL2.0",

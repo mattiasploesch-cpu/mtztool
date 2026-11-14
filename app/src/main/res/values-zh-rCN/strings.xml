@@ -220,6 +220,14 @@
     <string name="setup_step_theme">外观</string>
     <string name="setup_step_language">语言</string>
     <string name="setup_step_access">访问权限</string>
+    <string name="setup_step_account">账户</string>
+    <string name="setup_account_title">GitHub 与云备份</string>
+    <string name="setup_account_body">可选：使用 GitHub 登录以注册此设备、将备份作为 pull request 上传，并在以后恢复。你可以跳过此步骤，稍后在设置中登录。</string>
+    <string name="setup_account_signed_in">已登录为 %1$s</string>
+    <string name="setup_account_signed_out">尚未登录</string>
+    <string name="setup_account_sign_in">使用 GitHub 登录</string>
+    <string name="setup_account_switch">切换 GitHub 账户</string>
+    <string name="setup_account_restore">恢复云备份</string>
     <string name="setup_theme_title">选择你的外观</string>
     <string name="setup_theme_body">从六种配色系列中选择一种，每种均包含浅色和深色变体。之后可在设置中随时更改。</string>
     <string name="setup_mode_title">显示模式</string>

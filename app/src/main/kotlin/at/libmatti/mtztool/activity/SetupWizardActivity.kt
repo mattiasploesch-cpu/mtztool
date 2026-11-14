@@ -4,8 +4,10 @@ import at.libmatti.mtztool.*
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Translate
@@ -55,6 +58,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import at.libmatti.mtztool.github.GitHubApi
 import at.libmatti.mtztool.ui.theme.AppThemes
 import at.libmatti.mtztool.ui.theme.MTZToolTheme
 import at.libmatti.mtztool.ui.theme.ThemeFamily
@@ -93,6 +97,7 @@ private val steps = listOf(
     WizardStep(R.string.setup_step_theme, Icons.Default.Palette),
     WizardStep(R.string.setup_step_language, Icons.Default.Translate),
     WizardStep(R.string.setup_step_access, Icons.Default.Security),
+    WizardStep(R.string.setup_step_account, Icons.Default.Cloud),
 )
 
 @Composable
@@ -105,6 +110,14 @@ private fun SetupWizardScreen(onFinished: () -> Unit) {
     var dynamicColor by remember { mutableStateOf(AppSettings.isDynamicColorEnabled(context)) }
     var language by remember { mutableStateOf(AppSettings.getLanguage(context)) }
     var provider by remember { mutableStateOf(AppSettings.getPrivilegeProvider(context)) }
+    var signedIn by remember { mutableStateOf(GitHubApi.isSignedIn(context)) }
+    var login by remember { mutableStateOf(AppSettings.getGithubLogin(context)) }
+    val authLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        signedIn = GitHubApi.isSignedIn(context)
+        login = AppSettings.getGithubLogin(context)
+    }
 
     fun applyTheme(nextFamily: ThemeFamily = family, nextMode: ThemeMode = mode) {
         family = nextFamily
@@ -225,7 +238,7 @@ private fun SetupWizardScreen(onFinished: () -> Unit) {
                     }
                 }
 
-                else -> {
+                2 -> {
                     item {
                         OnboardingCard(
                             title = stringResource(R.string.setup_access_title),
@@ -252,6 +265,61 @@ private fun SetupWizardScreen(onFinished: () -> Unit) {
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                             )
+                        }
+                    }
+                }
+
+                3 -> {
+                    item {
+                        OnboardingCard(
+                            title = stringResource(R.string.setup_account_title),
+                            body = stringResource(R.string.setup_account_body),
+                        )
+                    }
+                    item {
+                        Card(shape = RoundedCornerShape(20.dp)) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                Text(
+                                    if (signedIn) {
+                                        stringResource(R.string.setup_account_signed_in, login)
+                                    } else {
+                                        stringResource(R.string.setup_account_signed_out)
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Button(
+                                    onClick = {
+                                        authLauncher.launch(
+                                            Intent(context, GitHubAuthActivity::class.java)
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Icon(Icons.Default.Cloud, contentDescription = null)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        stringResource(
+                                            if (signedIn) R.string.setup_account_switch
+                                            else R.string.setup_account_sign_in
+                                        )
+                                    )
+                                }
+                                if (signedIn) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            context.startActivity(
+                                                Intent(context, RestorePromptActivity::class.java)
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Text(stringResource(R.string.setup_account_restore))
+                                    }
+                                }
+                            }
                         }
                     }
                     item {

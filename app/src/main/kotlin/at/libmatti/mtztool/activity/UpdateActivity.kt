@@ -128,7 +128,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
         }
     }
 
-    fun download(target: UpdateRelease) {
+    fun downloadFullApk(target: UpdateRelease) {
         if (downloading) return
         downloading = true
         downloaded = 0L
@@ -153,6 +153,14 @@ private fun UpdateScreen(onBack: () -> Unit) {
                 },
             )
         }
+    }
+
+    fun startPatch(target: UpdateRelease, chain: List<UpdatePatch>) {
+        if (chain.isEmpty() || !AppSettings.isPatchUpdatesEnabled(context)) {
+            downloadFullApk(target)
+            return
+        }
+        PatcherLauncher.start(context, chain, target.versionName)
     }
 
     fun install(file: File) {
@@ -407,9 +415,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         val file = downloadedFile
                         if (file == null && patchChain.isNotEmpty()) {
                             Button(
-                                onClick = {
-                                    PatcherLauncher.start(context, patchChain, target.versionName)
-                                },
+                                onClick = { startPatch(target, patchChain) },
                                 enabled = !downloading,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
@@ -418,7 +424,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                                 Text(stringResource(R.string.updates_patch_apply))
                             }
                             TextButton(
-                                onClick = { download(target) },
+                                onClick = { downloadFullApk(target) },
                                 enabled = !downloading,
                             ) {
                                 Text(
@@ -430,7 +436,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                             }
                         } else if (file == null) {
                             Button(
-                                onClick = { download(target) },
+                                onClick = { downloadFullApk(target) },
                                 enabled = !downloading,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {

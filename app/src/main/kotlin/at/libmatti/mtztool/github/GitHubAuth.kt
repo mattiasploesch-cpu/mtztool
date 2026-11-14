@@ -37,9 +37,14 @@ object GitHubAuth {
         val interval: Int,
     )
 
-    private const val DEVICE_CODE_URL = "https://github.com/login/device/code"
-    private const val TOKEN_URL = "https://github.com/login/oauth/access_token"
+    private const val DEVICE_CODE_PATH = "/login/device/code"
+    private const val TOKEN_PATH = "/login/oauth/access_token"
     private const val SCOPES = "repo read:user notifications workflow"
+
+    // Some devices/VPNs resolve github.com for the WebView but fail for the
+    // app process. Retry the OAuth calls and fall back to the www host before
+    // giving up, so a transient DNS hiccup does not lose a successful login.
+    private val OAUTH_HOSTS = listOf("https://github.com", "https://www.github.com")
 
     suspend fun startDeviceFlow(context: Context): Result<DeviceCode> =
         withContext(Dispatchers.IO) {
@@ -51,8 +56,8 @@ object GitHubAuth {
                             "Entwickleroptionen → GitHub API ein."
                     )
                 }
-                val response = postForm(
-                    DEVICE_CODE_URL,
+                val response = postFormResilient(
+                    DEVICE_CODE_PATH,
                     mapOf(
                         "client_id" to clientId,
                         "scope" to SCOPES,
@@ -93,8 +98,8 @@ object GitHubAuth {
             while (System.currentTimeMillis() < deadline) {
                 delay(interval * 1000L)
                 onAttempt("Warte auf Bestätigung …")
-                val response = postForm(
-                    TOKEN_URL,
+                val response = postFormResilient(
+                    TOKEN_PATH,
                     mapOf(
                         "client_id" to clientId,
                         "device_code" to deviceCode.deviceCode,
@@ -118,6 +123,34 @@ object GitHubAuth {
             throw IOException("Zeitüberschreitung – bitte Code neu anfordern.")
         }
     }
+
+    private suspend fun postFormResilient(
+        path: String,
+        fields: Map<String, String>,
+    ): String {
+        var last: IOException? = null
+        repeat(3) { attempt ->
+            for (host in OAUTH_HOSTS) {
+                try {
+                    return postForm(host + path, fields)
+                } catch (e: IOException) {
+                    last = e
+                    if (!isTransientNetworkError(e)) throw e
+                }
+            }
+            if (attempt < 2) delay(2_000L * (attempt + 1))
+        }
+        throw last ?: IOException("GitHub ist nicht erreichbar.")
+    }
+
+    private fun isTransientNetworkError(error: Throwable): Boolean =
+        generateSequence(error) { it.cause }.any { cause ->
+            cause is java.net.UnknownHostException ||
+                cause is java.net.ConnectException ||
+                cause is java.net.SocketTimeoutException ||
+                cause.message?.contains("resolve host", ignoreCase = true) == true ||
+                cause.message?.contains("name or service not known", ignoreCase = true) == true
+        }
 
     internal fun postForm(url: String, fields: Map<String, String>): String {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {

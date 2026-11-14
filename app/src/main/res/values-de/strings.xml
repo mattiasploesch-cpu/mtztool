@@ -218,10 +218,11 @@
 
     <!-- Einrichtungsassistent -->
     <string name="setup_title">Willkommen bei MTZ Tool</string>
-    <string name="setup_subtitle">Drei kurze Schritte für deine Theme-Werkstatt.</string>
+    <string name="setup_subtitle">Vier kurze Schritte für deine Theme-Werkstatt.</string>
     <string name="setup_step_theme">Darstellung</string>
     <string name="setup_step_language">Sprache</string>
     <string name="setup_step_access">Zugriff</string>
+    <string name="setup_step_account">Konto</string>
     <string name="setup_theme_title">Wähle dein Erscheinungsbild</string>
     <string name="setup_theme_body">Wähle eine von sechs Farbfamilien, jeweils mit hellem und dunklem Modus. Alles lässt sich später in den Einstellungen ändern.</string>
     <string name="setup_mode_title">Anzeigemodus</string>
@@ -235,6 +236,13 @@
     <string name="setup_access_title">Wie sollen Themes angewendet werden?</string>
     <string name="setup_access_body">Root schreibt Themes direkt in das System-Theme-Verzeichnis. Shizuku übergibt die Datei ohne Root an den Xiaomi Theme Manager.</string>
     <string name="setup_access_note">Du kannst die Methode jederzeit wechseln. Root wird nur verwendet, wenn hier Root ausgewählt ist.</string>
+    <string name="setup_account_title">GitHub &amp; Cloud-Backup</string>
+    <string name="setup_account_body">Optional: Melde dich mit GitHub an, um dieses Gerät zu registrieren, Sicherungen als Pull Request hochzuladen und später wiederherzustellen. Du kannst diesen Schritt überspringen und dich später in den Einstellungen anmelden.</string>
+    <string name="setup_account_signed_in">Angemeldet als %1$s</string>
+    <string name="setup_account_signed_out">Noch nicht angemeldet</string>
+    <string name="setup_account_sign_in">Mit GitHub anmelden</string>
+    <string name="setup_account_switch">GitHub-Konto wechseln</string>
+    <string name="setup_account_restore">Cloud-Backup wiederherstellen</string>
     <string name="setup_ready_title">Alles bereit</string>
     <string name="setup_ready_body">Öffne eine .mtz oder .bak einmal und nutze dasselbe In-Memory-Theme danach in allen Werkzeugen: anwenden, patchen, prüfen, vergleichen, exportieren und Icon-Packs bauen.</string>
     <string name="setup_back">Zurück</string>

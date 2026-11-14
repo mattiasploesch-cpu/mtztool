@@ -220,6 +220,14 @@
     <string name="setup_step_theme">Apariencia</string>
     <string name="setup_step_language">Idioma</string>
     <string name="setup_step_access">Acceso</string>
+    <string name="setup_step_account">Cuenta</string>
+    <string name="setup_account_title">GitHub y copia en la nube</string>
+    <string name="setup_account_body">Opcional: inicia sesión con GitHub para registrar este dispositivo, subir copias como pull requests y restaurarlas más tarde. Puedes omitir este paso e iniciar sesión más tarde en los ajustes.</string>
+    <string name="setup_account_signed_in">Sesión iniciada como %1$s</string>
+    <string name="setup_account_signed_out">Aún no has iniciado sesión</string>
+    <string name="setup_account_sign_in">Iniciar sesión con GitHub</string>
+    <string name="setup_account_switch">Cambiar de cuenta de GitHub</string>
+    <string name="setup_account_restore">Restaurar una copia en la nube</string>
     <string name="setup_theme_title">Elige tu aspecto</string>
     <string name="setup_theme_body">Elige una de las seis familias de color, cada una con variantes clara y oscura. Puedes cambiar todo más tarde en los ajustes.</string>
     <string name="setup_mode_title">Modo de pantalla</string>

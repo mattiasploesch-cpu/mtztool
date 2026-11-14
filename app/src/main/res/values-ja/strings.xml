@@ -220,6 +220,14 @@
     <string name="setup_step_theme">外観</string>
     <string name="setup_step_language">言語</string>
     <string name="setup_step_access">アクセス</string>
+    <string name="setup_step_account">アカウント</string>
+    <string name="setup_account_title">GitHub とクラウドバックアップ</string>
+    <string name="setup_account_body">任意: GitHub でサインインすると、このデバイスの登録、バックアップの pull request としてのアップロード、後での復元ができます。スキップして後から設定でサインインすることもできます。</string>
+    <string name="setup_account_signed_in">%1$s としてサインイン中</string>
+    <string name="setup_account_signed_out">まだサインインしていません</string>
+    <string name="setup_account_sign_in">GitHub でサインイン</string>
+    <string name="setup_account_switch">GitHub アカウントを切り替え</string>
+    <string name="setup_account_restore">クラウドバックアップを復元</string>
     <string name="setup_theme_title">見た目を選択</string>
     <string name="setup_theme_body">6 つのカラーファミリーから選択できます。それぞれライトとダークのバリエーションがあります。後から設定ですべて変更できます。</string>
     <string name="setup_mode_title">表示モード</string>

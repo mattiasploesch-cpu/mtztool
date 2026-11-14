@@ -41,7 +41,9 @@ import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,6 +76,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import at.libmatti.mtztool.device.DeviceClass
 import at.libmatti.mtztool.device.DeviceProfiles
+import at.libmatti.mtztool.github.DeviceCloud
 import at.libmatti.mtztool.github.GitHubApi
 import at.libmatti.mtztool.ui.AdaptiveContent
 import at.libmatti.mtztool.ui.DevInfoRow
@@ -106,6 +109,7 @@ private enum class SettingsRoute(val title: String) {
     UPDATES("Updates"),
     ACCOUNTS("GitHub & Konten"),
     BACKUP("Sicherung"),
+    RESET("Zurücksetzen"),
     ABOUT("Über die App"),
 }
 
@@ -235,7 +239,6 @@ fun SettingsScreen(onBack: () -> Unit) {
                         developerMode = developerMode,
                         versionName = versionName,
                         onOpen = { route = it },
-                        onReset = { confirmReset = true },
                     )
 
                     SettingsRoute.APPEARANCE -> AppearanceSettings()
@@ -250,6 +253,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                         onImport = {
                             importLauncher.launch(arrayOf("application/json", "text/*", "*/*"))
                         },
+                    )
+                    SettingsRoute.RESET -> ResetSettings(
                         onReset = { confirmReset = true },
                     )
                     SettingsRoute.ABOUT -> AboutSettings(
@@ -325,7 +330,6 @@ private fun SettingsHome(
     developerMode: Boolean,
     versionName: String,
     onOpen: (SettingsRoute) -> Unit,
-    onReset: () -> Unit,
 ) {
     val context = LocalContext.current
     SettingsSection(
@@ -354,7 +358,16 @@ private fun SettingsHome(
         HubRow(Icons.Default.Cloud, "GitHub & Konten", "Anmeldung, Client-IDs, Issue-Tracker") {
             onOpen(SettingsRoute.ACCOUNTS)
         }
-        HubRow(Icons.Default.Backup, "Sicherung", "Export, Import und Zurücksetzen", onReset)
+        HubRow(Icons.Default.Backup, "Sicherung", "Cloud-Backup als PR, Export und Import") {
+            onOpen(SettingsRoute.BACKUP)
+        }
+        HubRow(
+            Icons.Default.Warning,
+            "Zurücksetzen",
+            "Alle Einstellungen löschen und den Setup-Assistenten neu starten",
+        ) {
+            onOpen(SettingsRoute.RESET)
+        }
         HubRow(Icons.Default.Info, "Über die App", "$versionName · Entwicklermodus") {
             onOpen(SettingsRoute.ABOUT)
         }
@@ -1121,8 +1134,13 @@ private fun AccountSettings(message: (String) -> Unit) {
 // ── Backup / About ────────────────────────────────────────────────
 
 @Composable
-private fun BackupSettings(onExport: () -> Unit, onImport: () -> Unit, onReset: () -> Unit) {
+private fun BackupSettings(onExport: () -> Unit, onImport: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    val signedIn = GitHubApi.isSignedIn(context)
+
     SettingsSection(
         title = stringResource(R.string.settings_backup),
         subtitle = stringResource(R.string.settings_backup_desc),
@@ -1142,12 +1160,92 @@ private fun BackupSettings(onExport: () -> Unit, onImport: () -> Unit, onReset: 
             buttonText = stringResource(R.string.settings_open),
             onClick = { context.startActivity(Intent(context, BugReportActivity::class.java)) },
         )
-        SetButtonRow(
-            title = stringResource(R.string.settings_reset),
-            subtitle = stringResource(R.string.settings_reset_desc),
-            buttonText = stringResource(R.string.settings_reset_button),
-            onClick = onReset,
+    }
+
+    SettingsSection(
+        title = "Cloud-Sicherung",
+        subtitle = if (signedIn) {
+            "Jede Sicherung wird als eigener Pull Request hochgeladen."
+        } else {
+            "Melde dich zuerst unter GitHub & Konten an."
+        },
+        icon = Icons.Default.Cloud,
+    ) {
+        Button(
+            onClick = {
+                if (!signedIn || busy) return@Button
+                busy = true
+                message = null
+                scope.launch {
+                    DeviceCloud.upload(context).fold(
+                        onSuccess = { message = "Backup-PR angelegt: $it" },
+                        onFailure = { message = it.message ?: "Backup fehlgeschlagen" },
+                    )
+                    busy = false
+                }
+            },
+            enabled = signedIn && !busy,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (busy) {
+                CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+            } else {
+                Icon(Icons.Default.Cloud, contentDescription = null)
+            }
+            Spacer(Modifier.width(8.dp))
+            Text(if (busy) "Backup wird hochgeladen …" else "Jetzt als PR sichern")
+        }
+        OutlinedButton(
+            onClick = { context.startActivity(Intent(context, DeviceCloudActivity::class.java)) },
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Icon(Icons.Default.Refresh, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text("Aus Cloud wiederherstellen")
+        }
+        if (!signedIn) {
+            OutlinedButton(
+                onClick = {
+                    context.startActivity(
+                        Intent(context, GitHubAuthActivity::class.java)
+                            .putExtra(GitHubAuthActivity.EXTRA_MODE, GitHubAuthActivity.MODE_GITHUB)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Mit GitHub anmelden") }
+        }
+        message?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResetSettings(onReset: () -> Unit) {
+    SettingsSection(
+        title = stringResource(R.string.settings_reset),
+        subtitle = stringResource(R.string.settings_reset_desc),
+        icon = Icons.Default.Warning,
+    ) {
+        Text(
+            "Diese Aktion löscht alle Einstellungen, Konten und lokalen Optionen. " +
+                "Danach startet die App direkt im Setup-Assistenten.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        OutlinedButton(
+            onClick = onReset,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Icon(Icons.Default.Warning, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.settings_reset_button))
+        }
     }
 }
 

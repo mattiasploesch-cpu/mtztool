@@ -213,7 +213,7 @@ private fun DeviceCloudScreen(onBack: () -> Unit) {
                         busy = "upload"
                         scope.launch {
                             DeviceCloud.upload(context).fold(
-                                onSuccess = { message = "Backup aktualisiert." },
+                                onSuccess = { message = "Backup-PR angelegt: $it" },
                                 onFailure = { message = it.message },
                             )
                             busy = null

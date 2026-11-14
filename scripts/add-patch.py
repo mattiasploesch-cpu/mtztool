@@ -48,7 +48,7 @@ def main() -> int:
         if args.base_url and not args.changelog_url.startswith("http")
         else args.changelog_url
     )
-    data["patch"] = {
+    entry = {
         "fromVersionCode": args.from_code,
         "toVersionCode": args.to_code,
         "fromVersionName": args.from_version,
@@ -57,6 +57,20 @@ def main() -> int:
         "size": os.path.getsize(args.patch),
         "sha256": sha256(args.patch),
     }
+    data["patch"] = entry
+
+    # Keep every adjacent step so an old installed build can walk forward
+    # release by release instead of downloading the full APK.
+    chain = [
+        item for item in data.get("patches", [])
+        if item.get("fromVersionCode") != args.from_code
+        or item.get("toVersionCode") != args.to_code
+    ]
+    chain.append(entry)
+    data["patches"] = sorted(
+        chain,
+        key=lambda item: (item.get("fromVersionCode", 0), item.get("toVersionCode", 0)),
+    )
     data["changelogUrl"] = changelog_url
     with open(args.manifest, "w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2, ensure_ascii=False)

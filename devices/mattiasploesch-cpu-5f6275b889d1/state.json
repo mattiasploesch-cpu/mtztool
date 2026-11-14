@@ -8,23 +8,23 @@
     "manufacturer": "Xiaomi",
     "model": "2511FPC34G",
     "android": "16",
-    "appVersion": "2.3.2null",
-    "versionCode": 20302,
-    "registeredAt": "2026-11-14T16:44:02Z"
+    "appVersion": "2.3.4null",
+    "versionCode": 20304,
+    "registeredAt": "2026-11-14T17:32:27Z"
   },
   "settings": {
     "app": "at.libmatti.mtztool",
     "schema": 3,
     "setupCompleted": true,
     "privilegeProvider": "ROOT",
-    "developerMode": true,
+    "developerMode": false,
     "language": "en",
     "themeFamily": "MATERIAL",
     "themeMode": "SYSTEM",
     "dynamicColor": false,
     "logAutoscroll": true,
-    "logVerbose": false,
-    "maxLogEntries": 300,
+    "logVerbose": true,
+    "maxLogEntries": 2000,
     "confirmApply": true,
     "keepScreenOn": true,
     "showBundledApply": false,
@@ -41,7 +41,7 @@
     "updateManifestUrl": "",
     "shellInstall": true,
     "allowDowngrade": false,
-    "lastUpdateCheck": 1794674300339,
+    "lastUpdateCheck": 1794677521612,
     "skippedUpdateVersionCode": 0,
     "deviceClassOverride": "AUTO",
     "adaptiveLayout": true,
@@ -52,6 +52,6 @@
     "githubLogin": "mattiasploesch-cpu",
     "googleAccount": ""
   },
-  "logs": "2026-11-14 17:38:14 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-14 17:38:20 [INFO] Update-Prüfung: Die App ist aktuell.\n2026-11-14 17:43:06 [SUCCESS] Mit GitHub angemeldet: mattiasploesch-cpu\n2026-11-14 17:44:00 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.",
-  "updatedAt": "2026-11-14T16:44:02Z"
+  "logs": "2026-11-14 18:32:15 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-14 18:32:21 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.",
+  "updatedAt": "2026-11-14T17:32:27Z"
 }

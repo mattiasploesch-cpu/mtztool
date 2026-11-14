@@ -443,11 +443,41 @@ fun ThemeBrowserScreen(onBack: () -> Unit) {
                                             Text("Aktualisieren")
                                         }
                                         Text(
-                                            "Nativer Store · kein Web-UI",
+                                            "GitHub · Manifest",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.primary,
                                         )
                                     }
+                                    Button(
+                                        onClick = {
+                                            context.startActivity(
+                                                android.content.Intent(
+                                                    context,
+                                                    InAppBrowserActivity::class.java,
+                                                )
+                                                    .putExtra(
+                                                        InAppBrowserActivity.EXTRA_URL,
+                                                        ThemeBrowser.officialStoreUrl(),
+                                                    )
+                                                    .putExtra(
+                                                        InAppBrowserActivity.EXTRA_TITLE,
+                                                        "MIUI Theme Store",
+                                                    )
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) {
+                                        Icon(Icons.Default.OpenInNew, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Echten MIUI Theme Store öffnen")
+                                    }
+                                    Text(
+                                        "Der offizielle Xiaomi-Store wird direkt in der App geöffnet. " +
+                                            "Dort kannst du echte MIUI-Themes durchsuchen und einzelne " +
+                                            "Theme-Links anschließend über den URL-Import laden.",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
                             }
                         }

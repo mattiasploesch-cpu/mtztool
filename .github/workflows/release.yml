@@ -127,6 +127,50 @@ jobs:
             --output-json dist/changelog.json
           cat dist/CHANGELOG.md
 
+      - name: Carry forward the update patch chain
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ -z "$PREVIOUS" ]; then
+            echo "Kein vorheriger Release-Tag – keine Patch-Kette."
+            exit 0
+          fi
+          mkdir -p /tmp/previous-manifest
+          gh release download "v$PREVIOUS" --pattern update.json \
+            --dir /tmp/previous-manifest --clobber || true
+          if [ ! -f /tmp/previous-manifest/update.json ]; then
+            echo "::warning::Vorheriges update.json fehlt – Kette startet beim aktuellen Patch."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json, os
+          previous = os.environ["PREVIOUS"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          base = f"https://github.com/{repo}/releases/download/v{previous}/"
+          with open("/tmp/previous-manifest/update.json", encoding="utf-8") as handle:
+              old = json.load(handle)
+          with open("dist/update.json", encoding="utf-8") as handle:
+              current = json.load(handle)
+          chain = []
+          for item in old.get("patches", []) + ([old["patch"]] if old.get("patch") else []):
+              if not item.get("url"):
+                  continue
+              item = dict(item)
+              if not item["url"].startswith(("http://", "https://")):
+                  item["url"] = base + item["url"].rstrip("/").split("/")[-1]
+              key = (item.get("fromVersionCode"), item.get("toVersionCode"))
+              if all((other.get("fromVersionCode"), other.get("toVersionCode")) != key for other in chain):
+                  chain.append(item)
+          current["patches"] = chain
+          with open("dist/update.json", "w", encoding="utf-8") as handle:
+              json.dump(current, handle, indent=2, ensure_ascii=False)
+              handle.write("\n")
+          print(f"{len(chain)} ältere Patch-Schritte übernommen.")
+          PY
+
       - name: Build APK patch from previous release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

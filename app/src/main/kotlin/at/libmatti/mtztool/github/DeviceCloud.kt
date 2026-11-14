@@ -158,7 +158,11 @@ object DeviceCloud {
             }
         }
 
-    suspend fun upload(context: Context): Result<Unit> = withContext(Dispatchers.IO) {
+    /**
+     * Writes a backup to a fresh branch and opens a reviewable PR against the
+     * cloud branch. Returns the PR URL so the UI can show where the backup is.
+     */
+    suspend fun upload(context: Context): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             require(isSignedIn(context)) { "Nicht mit GitHub angemeldet." }
             if (!GitHubApi.branchExists(context, CLOUD_BRANCH).getOrDefault(false)) {
@@ -174,27 +178,48 @@ object DeviceCloud {
                 put("logs", logs)
                 put("updatedAt", now())
             }
+            val branch = "backup/$slug-${System.currentTimeMillis()}"
+            GitHubApi.createBranch(context, branch, from = CLOUD_BRANCH).getOrThrow()
             val base = "devices/$slug"
-            writeFile(context, "$base/state.json", state.toString(2).toByteArray(), "backup: state $slug")
-            writeFile(context, "$base/latest.log", logs.toByteArray(), "backup: logs $slug")
+            writeFile(context, branch, "$base/state.json", state.toString(2).toByteArray(), "backup: state $slug")
+            writeFile(context, branch, "$base/latest.log", logs.toByteArray(), "backup: logs $slug")
+            val body = """
+                Automatisches Cloud-Backup von ${label()}.
+
+                - Gerät: `${slug}`
+                - App: ${UpdateChecker.currentVersionName(context)} (${UpdateChecker.currentVersionCode(context)})
+                - Android: ${Build.VERSION.RELEASE}
+                - Dateien: `$base/state.json`, `$base/latest.log`
+
+                Enthält Einstellungen und einen Log-Auszug, keine Tokens.
+            """.trimIndent()
+            val pr = GitHubApi.createPullRequest(
+                context = context,
+                title = "backup: ${label()} (${deviceHash(context)})",
+                head = branch,
+                base = CLOUD_BRANCH,
+                body = body,
+                draft = false,
+            ).getOrThrow()
             AppSettings.setLastDeviceSync(context, System.currentTimeMillis())
-            AppLog.success("Cloud-Backup aktualisiert: $base")
-            Unit
+            AppLog.success("Cloud-Backup als PR #${pr.number} angelegt: ${pr.htmlUrl}")
+            pr.htmlUrl
         }
     }
 
     private suspend fun writeFile(
         context: Context,
+        branch: String,
         path: String,
         bytes: ByteArray,
         message: String,
     ) {
-        val existing = GitHubApi.readFile(context, path, ref = CLOUD_BRANCH).getOrNull()
+        val existing = GitHubApi.readFile(context, path, ref = branch).getOrNull()
         GitHubApi.uploadFile(
             context = context,
             path = path,
             bytes = bytes,
-            branch = CLOUD_BRANCH,
+            branch = branch,
             message = message,
             sha = existing?.sha,
         ).getOrThrow()
@@ -226,13 +251,56 @@ object DeviceCloud {
                     ?: throw IOException("Für dieses Gerät gibt es noch kein Backup.")
                 AppSettings.importJson(context, state.settingsJson).getOrThrow()
                 AppSettings.setLastDeviceSync(context, System.currentTimeMillis())
+                val prUrl = runCatching { recordRestore(context, state) }.getOrNull()
                 AppLog.success("Cloud-Backup von ${state.label.ifBlank { deviceId }} übernommen.")
-                "Einstellungen von ${state.label.ifBlank { deviceId }} übernommen."
+                buildString {
+                    append("Einstellungen von ${state.label.ifBlank { deviceId }} übernommen.")
+                    if (prUrl != null) {
+                        append("\nRestore-PR: $prUrl")
+                    } else {
+                        append("\nHinweis: Der Restore-PR konnte nicht angelegt werden.")
+                    }
+                }
             }
         }
 
+    /** Records a restore in its own PR so the cloud history stays auditable. */
+    private suspend fun recordRestore(context: Context, state: CloudState): String? {
+        if (!GitHubApi.branchExists(context, CLOUD_BRANCH).getOrDefault(false)) return null
+        val slug = slug(context)
+        val branch = "restore/$slug-${System.currentTimeMillis()}"
+        GitHubApi.createBranch(context, branch, from = CLOUD_BRANCH).getOrThrow()
+        val marker = JSONObject().apply {
+            put("schema", 1)
+            put("device", slug)
+            put("sourceDevice", state.deviceId)
+            put("sourceLabel", state.label)
+            put("restoredAt", now())
+            put("appVersion", UpdateChecker.currentVersionName(context))
+            put("versionCode", UpdateChecker.currentVersionCode(context))
+        }
+        val path = "devices/$slug/restores/${stamp()}.json"
+        writeFile(context, branch, path, marker.toString(2).toByteArray(), "restore: $slug")
+        val pr = GitHubApi.createPullRequest(
+            context = context,
+            title = "restore: ${label()} (${deviceHash(context)})",
+            head = branch,
+            base = CLOUD_BRANCH,
+            body = """
+                Einstellungen aus `${state.deviceId}` wurden auf diesem Gerät
+                wiederhergestellt.
+
+                - Zielgerät: `$slug`
+                - Quelle: ${state.label.ifBlank { state.deviceId }}
+                - Marker: `$path`
+            """.trimIndent(),
+            draft = false,
+        ).getOrThrow()
+        return pr.htmlUrl
+    }
+
     /** Uploads at most once per day, in the background. */
-    suspend fun syncIfStale(context: Context): Result<Unit>? {
+    suspend fun syncIfStale(context: Context): Result<String>? {
         if (!AppSettings.isDeviceSyncEnabled(context) || !isSignedIn(context)) return null
         val last = AppSettings.getLastDeviceSync(context)
         if (last > 0 && System.currentTimeMillis() - last < SYNC_INTERVAL_MS) return null
@@ -241,6 +309,11 @@ object DeviceCloud {
 
     private fun now(): String =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")
+        }.format(Date())
+
+    private fun stamp(): String =
+        SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(Date())
 }

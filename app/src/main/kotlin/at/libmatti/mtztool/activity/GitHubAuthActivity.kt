@@ -120,6 +120,36 @@ private fun AuthScreen(mode: String, onDone: () -> Unit) {
         (context as? Activity)?.setResult(Activity.RESULT_OK)
     }
 
+    fun pollGitHub(code: GitHubAuth.DeviceCode) {
+        if (busy) return
+        busy = true
+        error = null
+        status = "Warte auf Bestätigung …"
+        scope.launch {
+            GitHubAuth.pollForToken(context, code) { line -> status = line }.fold(
+                onSuccess = { token ->
+                    AppSettings.setGithubToken(context, token)
+                    GitHubApi.user(context).fold(
+                        onSuccess = { user ->
+                            AppSettings.setGithubLogin(context, user.login)
+                            AppLog.success("Mit GitHub angemeldet: ${user.login}")
+                        },
+                        onFailure = {
+                            // The token is valid even when the profile request
+                            // hits a temporary DNS/network error.
+                            AppLog.warn("Profil konnte nicht geladen werden: ${it.message}")
+                        },
+                    )
+                    finishWithSuccess()
+                },
+                onFailure = {
+                    error = it.message ?: "Anmeldung fehlgeschlagen"
+                    busy = false
+                },
+            )
+        }
+    }
+
     fun startGitHub() {
         if (busy) return
         busy = true
@@ -132,27 +162,7 @@ private fun AuthScreen(mode: String, onDone: () -> Unit) {
                     pageUrl = code.verificationUri
                     status = "Code im Fenster eingeben und bestätigen"
                     // Poll in a separate coroutine so the WebView stays usable.
-                    scope.launch {
-                        GitHubAuth.pollForToken(context, code) { line -> status = line }.fold(
-                            onSuccess = { token ->
-                                AppSettings.setGithubToken(context, token)
-                                GitHubApi.user(context).fold(
-                                    onSuccess = { user ->
-                                        AppSettings.setGithubLogin(context, user.login)
-                                        AppLog.success("Mit GitHub angemeldet: ${user.login}")
-                                    },
-                                    onFailure = {
-                                        AppLog.warn("Profil konnte nicht geladen werden: ${it.message}")
-                                    },
-                                )
-                                finishWithSuccess()
-                            },
-                            onFailure = {
-                                error = it.message ?: "Anmeldung fehlgeschlagen"
-                                busy = false
-                            },
-                        )
-                    }
+                    pollGitHub(code)
                 },
                 onFailure = {
                     error = it.message ?: "Gerätecode fehlgeschlagen"
@@ -306,12 +316,25 @@ private fun AuthScreen(mode: String, onDone: () -> Unit) {
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                     ),
                 ) {
-                    Text(
-                        error.orEmpty(),
+                    Column(
                         modifier = Modifier.padding(14.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            error.orEmpty(),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        val code = deviceCode
+                        if (!isGoogle && code != null && !success) {
+                            Button(
+                                onClick = { pollGitHub(code) },
+                                enabled = !busy,
+                            ) {
+                                Text("Anmeldung erneut prüfen")
+                            }
+                        }
+                    }
                 }
             }
 

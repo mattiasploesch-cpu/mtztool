@@ -220,6 +220,14 @@
     <string name="setup_step_theme">Оформление</string>
     <string name="setup_step_language">Язык</string>
     <string name="setup_step_access">Доступ</string>
+    <string name="setup_step_account">Аккаунт</string>
+    <string name="setup_account_title">GitHub и облачное резервное копирование</string>
+    <string name="setup_account_body">Необязательно: войдите через GitHub, чтобы зарегистрировать это устройство, загружать резервные копии как pull request и позже восстанавливать их. Можно пропустить и войти позже в настройках.</string>
+    <string name="setup_account_signed_in">Вы вошли как %1$s</string>
+    <string name="setup_account_signed_out">Вы ещё не вошли</string>
+    <string name="setup_account_sign_in">Войти через GitHub</string>
+    <string name="setup_account_switch">Сменить аккаунт GitHub</string>
+    <string name="setup_account_restore">Восстановить облачную копию</string>
     <string name="setup_theme_title">Выберите оформление</string>
     <string name="setup_theme_body">Выберите одно из шести цветовых семейств, каждое со светлым и тёмным вариантом. Всё можно изменить позже в настройках.</string>
     <string name="setup_mode_title">Режим отображения</string>

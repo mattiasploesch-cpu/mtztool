@@ -657,9 +657,10 @@ object GitHubApi {
     }
 
     /**
-     * Commits a file on a new branch. GitHub creates the branch from the
-     * default branch when it does not exist yet. Pass [sha] to update an
-     * existing file on a sync branch.
+     * Commits a file on a branch. The contents API does not create a missing
+     * branch by itself (it returns 404 for an unknown ref), so a new branch is
+     * created from the default branch first. Pass [sha] to update an existing
+     * file on a sync branch.
      */
     suspend fun uploadFile(
         context: Context,
@@ -671,6 +672,9 @@ object GitHubApi {
         repo: String = configuredRepo(context),
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
+            if (sha.isNullOrBlank() && !branchExists(context, branch, repo).getOrThrow()) {
+                createBranch(context, branch, repo = repo).getOrThrow()
+            }
             val payload = JSONObject().apply {
                 put("message", message)
                 put("content", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP))
@@ -731,7 +735,10 @@ object GitHubApi {
         val hint = when (result.code) {
             401 -> "Anmeldung abgelaufen. Bitte erneut mit GitHub anmelden."
             403 -> "Keine Berechtigung oder API-Limit erreicht."
-            404 -> "Repository oder Issue nicht gefunden."
+            404 -> buildString {
+                append("Repository, Branch oder Issue nicht gefunden.")
+                if (message != null) append(" GitHub: ").append(message)
+            }
             422 -> message ?: "Die Anfrage wurde von GitHub abgelehnt."
             else -> message ?: "GitHub HTTP ${result.code}"
         }

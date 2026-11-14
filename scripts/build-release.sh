@@ -13,8 +13,17 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 DIST="$ROOT/dist"
-VERSION_NAME="$(grep -o 'versionName = "[^"]*"' app/build.gradle.kts | head -1 | cut -d'"' -f2)"
-VERSION_CODE="$(grep -o 'versionCode = [0-9]*' app/build.gradle.kts | head -1 | awk '{print $3}')"
+BASE_VERSION_NAME="$(grep -o 'val appVersionName = "[^"]*"' app/build.gradle.kts | head -1 | cut -d'"' -f2)"
+BASE_VERSION_CODE="$(grep -o 'val appVersionCode = [0-9]*' app/build.gradle.kts | head -1 | awk '{print $NF}')"
+VERSION_NAME="${MTZ_VERSION_NAME:-$BASE_VERSION_NAME}"
+VERSION_CODE="${MTZ_VERSION_CODE:-$BASE_VERSION_CODE}"
+GRADLE_VERSION_ARGS=()
+if [[ -n "${MTZ_VERSION_NAME:-}" ]]; then
+  GRADLE_VERSION_ARGS+=("-Pmtz.versionName=$MTZ_VERSION_NAME")
+fi
+if [[ -n "${MTZ_VERSION_CODE:-}" ]]; then
+  GRADLE_VERSION_ARGS+=("-Pmtz.versionCode=$MTZ_VERSION_CODE")
+fi
 
 mkdir -p "$DIST"
 
@@ -28,7 +37,8 @@ if [[ "$checksums_only" == false ]]; then
   ./gradlew --no-daemon \
     :app:assembleRelease \
     :app:bundlePlaystore \
-    -Pmtz.playBuild=true
+    -Pmtz.playBuild=true \
+    "${GRADLE_VERSION_ARGS[@]}"
 fi
 
 echo "==> Collecting artifacts"

@@ -90,6 +90,7 @@ fun GitHubScreen(onBack: () -> Unit) {
 
     var signedIn by remember { mutableStateOf(GitHubApi.isSignedIn(context)) }
     var login by remember { mutableStateOf(AppSettings.getGithubLogin(context)) }
+    val isOwner = GitHubApi.isOwner(context)
     var googleAccount by remember { mutableStateOf(AppSettings.getGoogleAccount(context)) }
     var tab by remember { mutableIntStateOf(0) }
     var issueFilter by remember { mutableIntStateOf(0) }
@@ -123,11 +124,18 @@ fun GitHubScreen(onBack: () -> Unit) {
 
     LaunchedEffect(tab, revision, signedIn, issueFilter) {
         if (!signedIn) return@LaunchedEffect
+        if (!isOwner && tab !in 0..1) {
+            tab = 1
+            return@LaunchedEffect
+        }
         loading = true
         error = null
         when (tab) {
             1 -> {
-                val result = if (issueFilter == 0) {
+                // Owner sees the repository queue, everyone else only their
+                // own issues. Hiding the tab is not enough – the data request
+                // is restricted as well.
+                val result = if (isOwner && issueFilter == 0) {
                     GitHubApi.issues(context)
                 } else {
                     GitHubApi.myIssues(context)
@@ -200,8 +208,12 @@ fun GitHubScreen(onBack: () -> Unit) {
                 .padding(innerPadding),
         ) {
             TabRow(selectedTabIndex = tab) {
-                listOf("Konto", "Issues", "PRs", "Meldungen", "Actions").forEachIndexed {
-                        index, label ->
+                val tabs = if (isOwner) {
+                    listOf("Konto", "Issues", "PRs", "Meldungen", "Actions")
+                } else {
+                    listOf("Konto", "Issues")
+                }
+                tabs.forEachIndexed { index, label ->
                     Tab(
                         selected = tab == index,
                         onClick = { tab = index },

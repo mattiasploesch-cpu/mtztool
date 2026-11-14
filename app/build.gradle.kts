@@ -36,6 +36,13 @@ val versionNameSuffix: String =
         ?: System.getenv("MTZ_VERSION_NAME_SUFFIX")
         ?: ""
 
+// CI computes these from Conventional Commits (scripts/next-version.py) and
+// passes them as Gradle properties. Local builds keep the checked-in base.
+val effectiveVersionName: String =
+    (project.findProperty("mtz.versionName") as String?) ?: appVersionName
+val effectiveVersionCode: Int =
+    (project.findProperty("mtz.versionCode") as String?)?.toIntOrNull() ?: appVersionCode
+
 android {
     namespace = "at.libmatti.mtztool"
     compileSdk = 36
@@ -44,8 +51,8 @@ android {
         applicationId = "at.libmatti.mtztool"
         minSdk = 28
         targetSdk = 36
-        versionCode = appVersionCode
-        versionName = appVersionName + versionNameSuffix
+        versionCode = effectiveVersionCode
+        versionName = effectiveVersionName + versionNameSuffix
 
         buildConfigField("String", "GITHUB_REPO", "\"mattiasploesch-cpu/mtztool\"")
         buildConfigField("String", "DEFAULT_UPDATE_CHANNEL", "\"stable\"")

@@ -73,7 +73,7 @@ object ThemeBrowser {
                         name = entry.name,
                         downloadUrl = entry.downloadUrl,
                         size = entry.size,
-                        source = "$label · ${AppSettings.getGithubRepo(context)}",
+                        source = label,
                     )
                 }
                 .sortedBy { it.name.lowercase() }
@@ -94,7 +94,7 @@ object ThemeBrowser {
                         name = entry.optString("name", "theme.mtz"),
                         downloadUrl = url,
                         size = entry.optLong("size"),
-                        source = entry.optString("source", "Manifest"),
+                        source = entry.optString("source", "Theme-Store"),
                         sha256 = entry.optString("sha256"),
                     )
                 }

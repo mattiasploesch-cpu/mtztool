@@ -111,7 +111,11 @@ import at.libmatti.mtztool.activity.ThemeBrowserActivity
 import at.libmatti.mtztool.activity.ThemeRightsActivity
 import at.libmatti.mtztool.activity.ThemeStudioActivity
 import at.libmatti.mtztool.activity.CreditsActivity
+import at.libmatti.mtztool.activity.DeviceCloudActivity
 import at.libmatti.mtztool.activity.DeveloperActivity
+import at.libmatti.mtztool.activity.IntroActivity
+import at.libmatti.mtztool.activity.RestorePromptActivity
+import at.libmatti.mtztool.activity.UpdatePromptActivity
 import at.libmatti.mtztool.activity.IconPackActivity
 import at.libmatti.mtztool.activity.LocalizedActivity
 import at.libmatti.mtztool.activity.MraCheckerActivity
@@ -125,7 +129,9 @@ import at.libmatti.mtztool.activity.ThemePreviewActivity
 import at.libmatti.mtztool.activity.ToolsActivity
 import at.libmatti.mtztool.activity.UpdateActivity
 import at.libmatti.mtztool.device.DeviceProfile
+import at.libmatti.mtztool.github.DeviceCloud
 import at.libmatti.mtztool.github.GitHubApi
+import at.libmatti.mtztool.github.RemoteConfig
 import at.libmatti.mtztool.ui.rememberDeviceProfile
 import at.libmatti.mtztool.ui.theme.MTZToolTheme
 import kotlinx.coroutines.Dispatchers
@@ -164,21 +170,14 @@ class MainActivity : LocalizedActivity() {
         CrashReporter.install(this)
         ShizukuHelper.selectedProvider = AppSettings.getPrivilegeProvider(this)
 
+        if (!AppSettings.isIntroSeen(this)) {
+            startActivity(Intent(this, IntroActivity::class.java))
+            finish()
+            return
+        }
         if (!AppSettings.isSetupCompleted(this)) {
-            awaitingSetup = true
-            setContent {
-                MTZToolTheme {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background,
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                }
-            }
-            startActivity(Intent(this, SetupWizardActivity::class.java))
+            startActivity(Intent(this, RestorePromptActivity::class.java))
+            finish()
             return
         }
 
@@ -206,6 +205,7 @@ class MainActivity : LocalizedActivity() {
                         onOpenLibrary = { startActivity(Intent(this, ThemeBrowserActivity::class.java)) },
                         onOpenRights = { startActivity(Intent(this, ThemeRightsActivity::class.java)) },
                         onOpenGitHub = { startActivity(Intent(this, GitHubActivity::class.java)) },
+                        onOpenCloud = { startActivity(Intent(this, DeviceCloudActivity::class.java)) },
                         onNewIssue = {
                             startActivity(
                                 Intent(this, IssueEditorActivity::class.java)
@@ -297,7 +297,17 @@ class MainActivity : LocalizedActivity() {
             recreate()
             return
         }
-        if (!awaitingSetup) maybeCheckUpdates(manual = false)
+        if (!awaitingSetup) {
+            maybeCheckUpdates(manual = false)
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) { RemoteConfig.refresh(this@MainActivity) }
+                withContext(Dispatchers.IO) {
+                    DeviceCloud.syncIfStale(this@MainActivity)?.onFailure {
+                        AppLog.warn("Cloud-Sync fehlgeschlagen: ${it.message}")
+                    }
+                }
+            }
+        }
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
@@ -459,6 +469,17 @@ class MainActivity : LocalizedActivity() {
                             "Update verfügbar: ${release.versionName} " +
                                 "(${release.channel.name.lowercase()})."
                         )
+                        if (!manual && release.versionCode > 0 &&
+                            release.versionCode != AppSettings.getPromptedUpdateVersionCode(this@MainActivity)
+                        ) {
+                            AppSettings.setPromptedUpdateVersionCode(
+                                this@MainActivity,
+                                release.versionCode,
+                            )
+                            startActivity(
+                                Intent(this@MainActivity, UpdatePromptActivity::class.java)
+                            )
+                        }
                     }
                 },
                 onFailure = {
@@ -504,6 +525,7 @@ private fun MainScreen(
     onOpenLibrary: () -> Unit,
     onOpenRights: () -> Unit,
     onOpenGitHub: () -> Unit,
+    onOpenCloud: () -> Unit,
     onNewIssue: () -> Unit,
     crashReport: CrashReporter.Report?,
     onDismissCrash: () -> Unit,
@@ -587,6 +609,16 @@ private fun MainScreen(
                     onClick = {
                         scope.launch { drawerState.close() }
                         onOpenLibrary()
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Cloud, contentDescription = null) },
+                    label = { Text("Geräte-Cloud") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onOpenCloud()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                 )

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mattiasploesch-cpu/mtztool/devices/schema.json",
+  "title": "MTZ Tool device registration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "deviceId",
+    "owner",
+    "label",
+    "manufacturer",
+    "model",
+    "android",
+    "appVersion",
+    "versionCode",
+    "registeredAt"
+  ],
+  "properties": {
+    "schema": { "const": 1 },
+    "deviceId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,80}$",
+      "description": "GitHub-Login (klein) plus Geräte-Hash, muss dem Dateinamen entsprechen."
+    },
+    "owner": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$"
+    },
+    "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "manufacturer": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "model": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "android": { "type": "string", "minLength": 1, "maxLength": 24 },
+    "appVersion": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "versionCode": { "type": "integer", "minimum": 1 },
+    "registeredAt": { "type": "string", "format": "date-time" },
+    "lastSeen": { "type": "string", "format": "date-time" },
+    "settings": {
+      "type": "object",
+      "description": "Optionaler, nicht geheimer Einstellungs-Snapshot.",
+      "maxProperties": 80
+    }
+  }
+}

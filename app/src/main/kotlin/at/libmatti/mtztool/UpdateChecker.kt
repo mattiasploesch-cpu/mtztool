@@ -31,6 +31,16 @@ data class UpdateAsset(
     val sha256: String? = null,
 )
 
+data class UpdatePatch(
+    val fromVersionCode: Int,
+    val toVersionCode: Int,
+    val fromVersionName: String,
+    val toVersionName: String,
+    val url: String,
+    val size: Long = 0L,
+    val sha256: String? = null,
+)
+
 data class UpdateRelease(
     val versionCode: Int,
     val versionName: String,
@@ -43,6 +53,7 @@ data class UpdateRelease(
     val splits: List<UpdateAsset>,
     val htmlUrl: String,
     val channel: UpdateChannel,
+    val patch: UpdatePatch? = null,
 )
 
 /**
@@ -64,10 +75,14 @@ object UpdateChecker {
             val releases: List<UpdateRelease> =
                 if (AppSettings.getUpdateManifestUrl(context).isNotBlank()) {
                     listOfNotNull(
-                        parseCustomManifest(AppSettings.getUpdateManifestUrl(context), channel)
+                        parseCustomManifest(
+                            AppSettings.getUpdateManifestUrl(context),
+                            channel,
+                            currentCode = currentVersionCode(context),
+                        )
                     )
                 } else {
-                    fetchGithubReleases(context, channel)
+                    fetchGithubReleases(context, channel, currentVersionCode(context))
                 }
 
             AppSettings.setLastUpdateCheck(context, System.currentTimeMillis())
@@ -163,6 +178,54 @@ object UpdateChecker {
         }
     }
 
+    suspend fun downloadPatch(
+        context: Context,
+        patch: UpdatePatch,
+        onProgress: (downloaded: Long, total: Long) -> Unit = { _, _ -> },
+    ): Result<File> = withContext(Dispatchers.IO) {
+        try {
+            val directory = File(context.cacheDir, "updates").apply { mkdirs() }
+            val target = File(directory, "MTZTool-${patch.toVersionName}.patch")
+            val temp = File(directory, target.name + ".part")
+            temp.delete()
+            target.delete()
+
+            val connection = openConnection(patch.url)
+            try {
+                val total = connection.contentLengthLong.takeIf { it > 0 } ?: patch.size
+                connection.inputStream.use { input ->
+                    temp.outputStream().use { output ->
+                        val buffer = ByteArray(128 * 1024)
+                        var downloaded = 0L
+                        while (true) {
+                            val read = input.read(buffer)
+                            if (read <= 0) break
+                            output.write(buffer, 0, read)
+                            downloaded += read
+                            onProgress(downloaded, total)
+                        }
+                    }
+                }
+            } finally {
+                connection.disconnect()
+            }
+            patch.sha256?.takeIf { it.isNotBlank() }?.let { expected ->
+                val actual = sha256(temp)
+                if (!actual.equals(expected, ignoreCase = true)) {
+                    temp.delete()
+                    throw IOException("Patch-SHA-256 stimmt nicht überein.")
+                }
+            }
+            if (!temp.renameTo(target)) {
+                temp.delete()
+                throw IOException("Patch-Download konnte nicht abgeschlossen werden.")
+            }
+            Result.success(target)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun asJson(context: Context, release: UpdateRelease): String = JSONObject().apply {
         put("versionCode", release.versionCode)
         put("versionName", release.versionName)
@@ -181,7 +244,11 @@ object UpdateChecker {
 
     // ── GitHub API ────────────────────────────────────────────
 
-    private fun fetchGithubReleases(context: Context, channel: UpdateChannel): List<UpdateRelease> {
+    private fun fetchGithubReleases(
+        context: Context,
+        channel: UpdateChannel,
+        currentCode: Int,
+    ): List<UpdateRelease> {
         val repo = AppSettings.getGithubRepo(context)
         val url = "https://api.github.com/repos/$repo/releases?per_page=30"
         val json = JSONArray(fetchText(url))
@@ -193,13 +260,17 @@ object UpdateChecker {
             val prerelease = release.optBoolean("prerelease", false)
             if (channel == UpdateChannel.STABLE && prerelease) continue
 
-            val parsed = parseGithubRelease(release, channel) ?: continue
+            val parsed = parseGithubRelease(release, channel, currentCode) ?: continue
             result += parsed
         }
         return result
     }
 
-    private fun parseGithubRelease(release: JSONObject, channel: UpdateChannel): UpdateRelease? {
+    private fun parseGithubRelease(
+        release: JSONObject,
+        channel: UpdateChannel,
+        currentCode: Int,
+    ): UpdateRelease? {
         val assets = release.optJSONArray("assets") ?: JSONArray()
         val assetList = (0 until assets.length()).mapNotNull { index ->
             val asset = assets.optJSONObject(index) ?: return@mapNotNull null
@@ -216,6 +287,7 @@ object UpdateChecker {
                 val parsed = parseManifestObject(
                     JSONObject(fetchText(manifest.url)),
                     channel,
+                    currentCode = currentCode,
                     fallbackHtml = release.optString("html_url"),
                     fallbackTag = release.optString("tag_name"),
                     fallbackPrerelease = release.optBoolean("prerelease", false),
@@ -255,18 +327,29 @@ object UpdateChecker {
 
     // ── Custom manifest ───────────────────────────────────────
 
-    private fun parseCustomManifest(url: String, channel: UpdateChannel): UpdateRelease? {
+    private fun parseCustomManifest(
+        url: String,
+        channel: UpdateChannel,
+        currentCode: Int,
+    ): UpdateRelease? {
         val json = JSONObject(fetchText(url))
         val releases = json.optJSONArray("releases")
         if (releases != null) {
             return (0 until releases.length())
-                .mapNotNull { parseManifestObject(releases.optJSONObject(it) ?: return@mapNotNull null, channel, url) }
+                .mapNotNull {
+                    parseManifestObject(
+                        releases.optJSONObject(it) ?: return@mapNotNull null,
+                        channel,
+                        url,
+                        currentCode = currentCode,
+                    )
+                }
                 .maxWithOrNull(
                     compareBy<UpdateRelease> { if (it.versionCode > 0) it.versionCode else 0 }
                         .thenBy { it.publishedAt }
                 )
         }
-        return parseManifestObject(json, channel, url)
+        return parseManifestObject(json, channel, url, currentCode = currentCode)
     }
 
     private fun parseManifestObject(
@@ -278,6 +361,7 @@ object UpdateChecker {
         fallbackPrerelease: Boolean = false,
         fallbackPublishedAt: String = "",
         fallbackChangelog: String = "",
+        currentCode: Int = 0,
     ): UpdateRelease? {
         val prerelease = if (json.has("prerelease")) json.getBoolean("prerelease") else fallbackPrerelease
         if (channel == UpdateChannel.STABLE && prerelease) return null
@@ -295,6 +379,23 @@ object UpdateChecker {
         val resolvedApkUrl = resolveUrl(baseUrl, apkUrl)
         val apkSize = json.optLong("apkSize", apkObject?.optLong("size", 0L) ?: 0L)
         val sha = json.optString("sha256").ifBlank { apkObject?.optString("sha256").orEmpty() }
+
+        var patch: UpdatePatch? = null
+        json.optJSONObject("patch")?.let { obj ->
+            val fromCode = obj.optInt("fromVersionCode")
+            val patchUrl = resolveUrl(baseUrl, obj.optString("url"))
+            if (patchUrl.isNotBlank() && (currentCode == 0 || fromCode == currentCode)) {
+                patch = UpdatePatch(
+                    fromVersionCode = fromCode,
+                    toVersionCode = obj.optInt("toVersionCode", versionCode),
+                    fromVersionName = obj.optString("fromVersionName"),
+                    toVersionName = obj.optString("toVersionName").ifBlank { versionName },
+                    url = patchUrl,
+                    size = obj.optLong("size", 0L),
+                    sha256 = obj.optString("sha256").ifBlank { null },
+                )
+            }
+        }
 
         val splits = mutableListOf<UpdateAsset>()
         json.optJSONArray("splits")?.let { array ->
@@ -329,6 +430,7 @@ object UpdateChecker {
             splits = splits,
             htmlUrl = json.optString("htmlUrl").ifBlank { fallbackHtml },
             channel = if (prerelease) UpdateChannel.PRERELEASE else UpdateChannel.STABLE,
+            patch = patch,
         )
     }
 
@@ -388,12 +490,17 @@ object UpdateChecker {
         return 0
     }
 
-    fun sha256(file: File): String {
+    fun sha256(file: File): String =
+        file.inputStream().use { sha256(it) }
+
+    fun sha256(bytes: ByteArray): String = sha256(bytes.inputStream())
+
+    private fun sha256(input: java.io.InputStream): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { input ->
+        input.use {
             val buffer = ByteArray(128 * 1024)
             while (true) {
-                val read = input.read(buffer)
+                val read = it.read(buffer)
                 if (read <= 0) break
                 digest.update(buffer, 0, read)
             }

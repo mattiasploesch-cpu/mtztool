@@ -257,9 +257,13 @@ fun ThemeBrowserScreen(onBack: () -> Unit) {
                     icon = { Icon(Icons.Default.Public, contentDescription = null) },
                 )
                 Tab(
-                    selected = tab == 2,
-                    onClick = { tab = 2 },
-                    text = { Text("Upload") },
+                    selected = false,
+                    onClick = {
+                        context.startActivity(
+                            android.content.Intent(context, ThemeUploadActivity::class.java)
+                        )
+                    },
+                    text = { Text("Hochladen") },
                     icon = { Icon(Icons.Default.Upload, contentDescription = null) },
                 )
             }
@@ -416,11 +420,6 @@ fun ThemeBrowserScreen(onBack: () -> Unit) {
                                             modifier = Modifier.weight(1f),
                                         ) { Text("Themes") }
                                         OutlinedButton(
-                                            onClick = { sourceIndex = 1 },
-                                            enabled = sourceIndex != 1,
-                                            modifier = Modifier.weight(1f),
-                                        ) { Text("App-Themes") }
-                                        OutlinedButton(
                                             onClick = { sourceIndex = 2 },
                                             enabled = sourceIndex != 2,
                                             modifier = Modifier.weight(1f),
@@ -428,11 +427,8 @@ fun ThemeBrowserScreen(onBack: () -> Unit) {
                                     }
                                     Text(
                                         when (sourceIndex) {
-                                            0 -> "Themes aus dem Ordner themes/ des Repos " +
-                                                AppSettings.getGithubRepo(context)
-                                            1 -> "App-Themes aus dem Ordner app-themes/ " +
-                                                "(pro-App-Designs, Icons, Schriften)"
-                                            else -> "themes/manifest.json mit Name, URL und SHA-256"
+                                            0 -> "Veröffentlichte Themes mit Name, Größe und SHA-256"
+                                            else -> "Theme-Manifest mit Name, URL und SHA-256"
                                         },
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -478,8 +474,8 @@ fun ThemeBrowserScreen(onBack: () -> Unit) {
                                     Column(modifier = Modifier.padding(14.dp)) {
                                         Text(error, color = MaterialTheme.colorScheme.onErrorContainer)
                                         Text(
-                                            "Tipp: Lege im Repo einen Ordner themes/ mit " +
-                                                ".mtz-Dateien an oder nutze den URL-Import.",
+                                            "Tipp: Nutze den URL-Import oder einen anderen " +
+                                                "Theme-Kanal.",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.onErrorContainer,
                                         )

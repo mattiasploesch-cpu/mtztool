@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-11-14T00:00:00Z",
+  "update": {
+    "channel": "stable",
+    "patchUpdates": true,
+    "checkIntervalHours": 24,
+    "minVersionCode": 0,
+    "message": ""
+  },
+  "deviceSync": {
+    "enabled": true,
+    "intervalHours": 24,
+    "uploadLogs": true
+  },
+  "features": {
+    "intro": true,
+    "changelog": true,
+    "patcher": true
+  },
+  "announcement": ""
+}

@@ -451,6 +451,33 @@ private fun AppearanceSettings() {
         )
     }
 
+    SettingsSection(title = "Design & Themes", icon = Icons.Default.Palette) {
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "Theme-Browser",
+            subtitle = "Themes entdecken, importieren und hochladen",
+            onClick = {
+                context.startActivity(Intent(context, ThemeBrowserActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "App-Theme-Browser",
+            subtitle = "Eigene App-Farbwelten ansehen und erstellen",
+            onClick = {
+                context.startActivity(Intent(context, AppThemeBrowserActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "App-Theme Studio",
+            subtitle = "Alle Farben per Picker ändern und einreichen",
+            onClick = {
+                context.startActivity(Intent(context, AppThemeStudioActivity::class.java))
+            },
+        )
+    }
+
     SettingsSection(title = "Assistent", icon = Icons.Default.VerifiedUser) {
         SetButtonRow(
             title = stringResource(R.string.settings_rerun_wizard),

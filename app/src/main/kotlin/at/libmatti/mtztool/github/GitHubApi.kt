@@ -87,6 +87,12 @@ object GitHubApi {
 
     fun configuredRepo(context: Context): String = AppSettings.getGithubRepo(context)
 
+    fun repoOwner(context: Context): String = configuredRepo(context).substringBefore('/')
+
+    /** The repository owner sees every issue, PR, notification and action. */
+    fun isOwner(context: Context): Boolean =
+        AppSettings.getGithubLogin(context).equals(repoOwner(context), ignoreCase = true)
+
     // ── Account ───────────────────────────────────────────────
 
     suspend fun user(context: Context): Result<User> = withContext(Dispatchers.IO) {
@@ -428,6 +434,12 @@ object GitHubApi {
         val type: String,
     )
 
+    data class FileContent(
+        val bytes: ByteArray,
+        val sha: String,
+        val size: Long,
+    )
+
     suspend fun directory(
         context: Context,
         path: String,
@@ -457,9 +469,85 @@ object GitHubApi {
         }
     }
 
+    /** Reads one file (optionally from another branch) with its blob SHA. */
+    suspend fun readFile(
+        context: Context,
+        path: String,
+        ref: String? = null,
+        repo: String = configuredRepo(context),
+    ): Result<FileContent> = withContext(Dispatchers.IO) {
+        runCatching {
+            val suffix = if (ref.isNullOrBlank()) "" else "?ref=" + enc(ref)
+            val json = JSONObject(
+                requireOk(
+                    http(
+                        "GET",
+                        "$BASE/repos/${cleanRepo(repo)}/contents/${path.trim('/')}$suffix",
+                        token(context),
+                    )
+                )
+            )
+            val encoded = json.optString("content").replace("\n", "")
+            val bytes = android.util.Base64.decode(encoded, android.util.Base64.DEFAULT)
+            FileContent(
+                bytes = bytes,
+                sha = json.optString("sha"),
+                size = json.optLong("size", bytes.size.toLong()),
+            )
+        }
+    }
+
+    suspend fun branchExists(
+        context: Context,
+        branch: String,
+        repo: String = configuredRepo(context),
+    ): Result<Boolean> = withContext(Dispatchers.IO) {
+        runCatching {
+            val result = http(
+                "GET",
+                "$BASE/repos/${cleanRepo(repo)}/git/ref/heads/${enc(branch)}",
+                token(context),
+            )
+            result.code in 200..299
+        }
+    }
+
+    suspend fun createBranch(
+        context: Context,
+        branch: String,
+        from: String = "main",
+        repo: String = configuredRepo(context),
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            val base = JSONObject(
+                requireOk(
+                    http(
+                        "GET",
+                        "$BASE/repos/${cleanRepo(repo)}/git/ref/heads/${enc(from)}",
+                        token(context),
+                    )
+                )
+            ).getJSONObject("object").getString("sha")
+            val payload = JSONObject().apply {
+                put("ref", "refs/heads/$branch")
+                put("sha", base)
+            }
+            requireOk(
+                http(
+                    "POST",
+                    "$BASE/repos/${cleanRepo(repo)}/git/refs",
+                    token(context),
+                    payload.toString(),
+                )
+            )
+            Unit
+        }
+    }
+
     /**
      * Commits a file on a new branch. GitHub creates the branch from the
-     * default branch when it does not exist yet.
+     * default branch when it does not exist yet. Pass [sha] to update an
+     * existing file on a sync branch.
      */
     suspend fun uploadFile(
         context: Context,
@@ -467,6 +555,7 @@ object GitHubApi {
         bytes: ByteArray,
         branch: String,
         message: String,
+        sha: String? = null,
         repo: String = configuredRepo(context),
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
@@ -474,6 +563,7 @@ object GitHubApi {
                 put("message", message)
                 put("content", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP))
                 put("branch", branch)
+                if (!sha.isNullOrBlank()) put("sha", sha)
             }
             requireOk(
                 http(

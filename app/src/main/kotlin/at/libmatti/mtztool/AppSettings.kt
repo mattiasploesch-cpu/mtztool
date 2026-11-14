@@ -87,7 +87,14 @@ object AppSettings {
         prefs(context).edit().putLong(key, value).apply()
     }
 
-    // ── Setup ─────────────────────────────────────────────────
+    // ── Setup / intro ─────────────────────────────────────────
+
+    fun isIntroSeen(context: Context) =
+        getBool(context, "intro_seen", false)
+
+    fun setIntroSeen(context: Context, seen: Boolean) {
+        setBool(context, "intro_seen", seen)
+    }
 
     fun isSetupCompleted(context: Context) =
         getBool(context, "setup_completed", false)
@@ -307,6 +314,53 @@ object AppSettings {
         setString(context, "update_manifest_url", url.trim())
     }
 
+    /** Optimistic UI default; the remote config can disable patches. */
+    fun isPatchUpdatesEnabled(context: Context) =
+        getBool(context, "patch_updates", true)
+
+    fun setPatchUpdatesEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "patch_updates", enabled)
+    }
+
+    fun getPromptedUpdateVersionCode(context: Context) =
+        getInt(context, "prompted_update_version_code", 0)
+
+    fun setPromptedUpdateVersionCode(context: Context, value: Int) {
+        setInt(context, "prompted_update_version_code", value)
+    }
+
+    fun isDeviceSyncEnabled(context: Context) =
+        getBool(context, "device_sync_enabled", false)
+
+    fun setDeviceSyncEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "device_sync_enabled", enabled)
+    }
+
+    fun getLastDeviceSync(context: Context) =
+        getLong(context, "last_device_sync", 0L)
+
+    fun setLastDeviceSync(context: Context, timestamp: Long) {
+        setLong(context, "last_device_sync", timestamp)
+    }
+
+    fun getRemoteConfigJson(context: Context): String =
+        getString(context, "remote_config", "")
+
+    fun setRemoteConfigJson(context: Context, value: String) {
+        setString(context, "remote_config", value)
+        setLong(context, "remote_config_at", System.currentTimeMillis())
+    }
+
+    fun getRemoteConfigAt(context: Context) =
+        getLong(context, "remote_config_at", 0L)
+
+    fun getRemoteAnnouncement(context: Context): String =
+        getString(context, "remote_announcement", "")
+
+    fun setRemoteAnnouncement(context: Context, value: String) {
+        setString(context, "remote_announcement", value)
+    }
+
     fun isShellInstallEnabled(context: Context) =
         getBool(context, "shell_install", true)
 
@@ -456,6 +510,9 @@ object AppSettings {
         json.put("deviceClassOverride", getDeviceClassOverride(context).name)
         json.put("adaptiveLayout", isAdaptiveLayoutEnabled(context))
         json.put("crashAutoReport", isCrashAutoReportEnabled(context))
+        json.put("introSeen", isIntroSeen(context))
+        json.put("patchUpdates", isPatchUpdatesEnabled(context))
+        json.put("deviceSyncEnabled", isDeviceSyncEnabled(context))
         json.put("githubLogin", getGithubLogin(context))
         json.put("googleAccount", getGoogleAccount(context))
         return json.toString(2)
@@ -518,6 +575,9 @@ object AppSettings {
             }
             json.optBooleanOrNull("adaptiveLayout")?.let { setAdaptiveLayoutEnabled(context, it) }
             json.optBooleanOrNull("crashAutoReport")?.let { setCrashAutoReportEnabled(context, it) }
+            json.optBooleanOrNull("introSeen")?.let { setIntroSeen(context, it) }
+            json.optBooleanOrNull("patchUpdates")?.let { setPatchUpdatesEnabled(context, it) }
+            json.optBooleanOrNull("deviceSyncEnabled")?.let { setDeviceSyncEnabled(context, it) }
             json.optStringOrNull("githubLogin")?.let { setGithubLogin(context, it) }
             json.optStringOrNull("googleAccount")?.let { setGoogleAccount(context, it) }
         }

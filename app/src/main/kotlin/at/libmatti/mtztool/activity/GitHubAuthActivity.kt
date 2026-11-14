@@ -42,6 +42,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -211,6 +212,18 @@ private fun AuthScreen(mode: String, onDone: () -> Unit) {
                     googleBusy = false
                 },
             )
+        }
+    }
+
+    // Automatic sign-in: the OAuth client ID is baked into the build unless
+    // the developer options store a different one. Opening the sign-in screen
+    // starts the device flow immediately, with no manual ID entry.
+    LaunchedEffect(Unit) {
+        if (!isGoogle && mode == GitHubAuthActivity.MODE_GITHUB &&
+            !GitHubApi.isSignedIn(context) &&
+            AppSettings.getGithubClientId(context).isNotBlank()
+        ) {
+            startGitHub()
         }
     }
 

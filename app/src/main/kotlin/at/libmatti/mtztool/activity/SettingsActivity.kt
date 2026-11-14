@@ -478,10 +478,18 @@ private fun AppearanceSettings() {
         )
         SetActionRow(
             icon = Icons.Default.Palette,
-            title = "Wallpaper & Theme patchen",
-            subtitle = "Wallpaper ersetzen, Komponenten entfernen und .mtz exportieren",
+            title = "MTZ Theme Editor",
+            subtitle = "Metadaten, Komponenten, Schriftart, Wallpaper und Lockscreen bearbeiten",
             onClick = {
                 context.startActivity(Intent(context, ThemePatchActivity::class.java))
+            },
+        )
+        SetActionRow(
+            icon = Icons.Default.Palette,
+            title = "Eigenes MTZ bauen",
+            subtitle = "Nur Schriftart, Wallpaper und Lockscreen-Bild importieren",
+            onClick = {
+                context.startActivity(Intent(context, ThemeStudioActivity::class.java))
             },
         )
     }

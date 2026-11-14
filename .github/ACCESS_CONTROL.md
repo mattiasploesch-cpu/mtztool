@@ -42,11 +42,11 @@ Die Rulesets liegen als importierbare JSON-Dateien in
 
 | Datei | Ziel | Regeln |
 | --- | --- | --- |
-| `main.json` | `refs/heads/main` | kein Löschen, kein Force-Push, lineare Historie, PR-Pflicht, 1 Approval, CODEOWNERS-Review, letzter Push muss approved sein, Konversationen aufgelöst, Squash-only, 5 Pflicht-Checks |
+| `main.json` | `refs/heads/main` | kein Löschen, kein Force-Push, lineare Historie, PR-Pflicht, 1 Approval, CODEOWNERS-Review, letzter Push muss approved sein, Konversationen aufgelöst, Squash-only, 4 Pflicht-Checks |
 | `tags.json` | `refs/tags/v*` | Tags nicht löschen, nicht verschieben |
 
-**Pflicht-Checks:** `PR title`, `Compile debug`, `Lint (debug)`,
-`Wrapper validation`, `Theme manifests`.
+**Pflicht-Checks:** `PR title`, `Build & lint`, `Wrapper validation`,
+`Theme manifests`.
 
 **Keine Bypass-Actors.** Auch der Owner umgeht die Regeln nicht im
 Normalbetrieb. Break-Glass:

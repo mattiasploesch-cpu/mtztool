@@ -122,11 +122,11 @@ Nightly läuft täglich um 02:00 UTC und manuell über **Actions → Nightly**.
 
 | Ruleset | Ziel | Inhalt |
 | --- | --- | --- |
-| `main-protection` | `main` | PR-Pflicht, 1 Approval, CODEOWNERS, letzter Push approved, lineare Historie, Squash-only, 5 Pflicht-Checks |
+| `main-protection` | `main` | PR-Pflicht, 1 Approval, CODEOWNERS, letzter Push approved, lineare Historie, Squash-only, 4 Pflicht-Checks |
 | `release-tags` | `v*` | Tags nicht löschen oder verschieben |
 
-Pflicht-Checks: `PR title`, `Compile debug`, `Lint (debug)`,
-`Wrapper validation`, `Theme manifests`.
+Pflicht-Checks: `PR title`, `Build & lint`, `Wrapper validation`,
+`Theme manifests`.
 
 Es gibt **keine Bypass-Actors**. Break-Glass ist in
 [ACCESS_CONTROL.md](../.github/ACCESS_CONTROL.md#3-rulesets) beschrieben:

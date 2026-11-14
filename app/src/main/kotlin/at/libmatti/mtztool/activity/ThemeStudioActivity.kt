@@ -162,7 +162,15 @@ fun ThemeStudioScreen(onBack: () -> Unit) {
     ) { uris: List<Uri> ->
         uris.forEach { uri ->
             runCatching {
-                sources.add(ThemeComposer.describe(context, uri))
+                val source = ThemeComposer.describe(context, uri)
+                if (!isImportableAsset(source.displayName)) {
+                    AppLog.warn(
+                        "${source.displayName} übersprungen: importierbar sind nur " +
+                            "Schriftarten, Wallpaper und Lockscreen-Bilder."
+                    )
+                    return@forEach
+                }
+                sources.add(source)
             }.onFailure {
                 AppLog.warn("Datei konnte nicht gelesen werden: ${it.message}")
             }
@@ -454,8 +462,8 @@ fun ThemeStudioScreen(onBack: () -> Unit) {
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Text(
-                                                "Schriftarten, Bilder, XML, Audio – " +
-                                                    "der Zielpfad im MTZ ist editierbar.",
+                                                "Nur Schriftarten, Wallpaper und Lockscreen-Bilder " +
+                                                    "importieren – der Zielpfad im MTZ ist editierbar.",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
@@ -699,6 +707,11 @@ fun ThemeStudioScreen(onBack: () -> Unit) {
             },
         )
     }
+}
+
+private fun isImportableAsset(displayName: String): Boolean {
+    val extension = displayName.substringAfterLast('.', "").lowercase()
+    return extension in setOf("ttf", "otf", "ttc", "jpg", "jpeg", "png", "webp")
 }
 
 @Composable

@@ -46,6 +46,8 @@ object MtzPatcher {
         val wallpaperExtension: String? = null,
         val lockWallpaper: ByteArray? = null,
         val lockWallpaperExtension: String? = null,
+        val font: ByteArray? = null,
+        val fontFileName: String? = null,
     )
 
     data class BuildResult(
@@ -53,6 +55,7 @@ object MtzPatcher {
         val removedEntries: Int,
         val wallpaperReplaced: Boolean,
         val lockWallpaperReplaced: Boolean,
+        val fontReplaced: Boolean,
         val descriptionWritten: Boolean,
     )
 
@@ -109,6 +112,7 @@ object MtzPatcher {
         var removed = 0
         var wallpaperReplaced = false
         var lockReplaced = false
+        var fontReplaced = false
         var descriptionWritten = false
 
         val output = ByteArrayOutputStream(bytes.size + 4096)
@@ -162,6 +166,10 @@ object MtzPatcher {
                             lockReplaced = true
                         }
 
+                        // Font files are replaced as a set: old files are
+                        // skipped and the imported font is appended below.
+                        isFontFile(name) && patch.font != null -> Unit
+
                         else -> {
                             zip.putNextEntry(ZipEntry(name).apply { time = System.currentTimeMillis() })
                             zip.write(data)
@@ -207,6 +215,15 @@ object MtzPatcher {
                 lockReplaced = true
             }
 
+            if (patch.font != null && "fonts" !in patch.removeEntries) {
+                val fileName = sanitizeFontName(patch.fontFileName)
+                zip.putNextEntry(
+                    ZipEntry("fonts/$fileName").apply { time = System.currentTimeMillis() }
+                )
+                zip.write(patch.font)
+                zip.closeEntry()
+                fontReplaced = true
+            }
         }
 
         return BuildResult(
@@ -214,6 +231,7 @@ object MtzPatcher {
             removedEntries = removed,
             wallpaperReplaced = wallpaperReplaced,
             lockWallpaperReplaced = lockReplaced,
+            fontReplaced = fontReplaced,
             descriptionWritten = descriptionWritten,
         )
     }
@@ -264,6 +282,19 @@ object MtzPatcher {
     private fun isLockWallpaper(name: String) =
         name.startsWith("wallpaper/default_lock_wallpaper") ||
             name.startsWith("wallpaper/lock_wallpaper")
+
+    private fun isFontFile(name: String) =
+        name.startsWith("fonts/") &&
+            name.substringAfterLast('.', "").lowercase() in setOf("ttf", "otf", "ttc")
+
+    private fun sanitizeFontName(value: String?): String {
+        val raw = (value ?: "font.ttf").substringAfterLast('/')
+            .replace(Regex("[\\\\:*?\"<>|]"), "_")
+            .trim()
+            .ifBlank { "font.ttf" }
+        val extension = raw.substringAfterLast('.', "").lowercase()
+        return if (extension in setOf("ttf", "otf", "ttc")) raw else "$raw.ttf"
+    }
 
     private fun shouldRemove(name: String, removeEntries: Set<String>): Boolean {
         for (entry in removeEntries) {

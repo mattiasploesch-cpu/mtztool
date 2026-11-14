@@ -43,10 +43,7 @@
             "context": "PR title"
           },
           {
-            "context": "Compile debug"
-          },
-          {
-            "context": "Lint (debug)"
+            "context": "Build & lint"
           },
           {
             "context": "Wrapper validation"

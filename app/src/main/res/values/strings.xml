@@ -403,22 +403,6 @@
     <string name="tool_store_desc">Browse, download and manage themes from GitHub and download manifests.</string>
     <string name="tool_rights">Rights tool</string>
     <string name="tool_rights_desc">Validate .mra files, show coverage and attach valid rights to a theme.</string>
-    <string name="store_title">Theme Store</string>
-    <string name="store_tab_library">Library</string>
-    <string name="store_tab_discover">Discover</string>
-    <string name="store_tab_upload">Upload</string>
-    <string name="store_source_repo">Themes</string>
-    <string name="store_source_apps">App themes</string>
-    <string name="store_source_manifest">Manifest</string>
-    <string name="store_empty">No themes found.</string>
-    <string name="store_import">Import</string>
-    <string name="store_download">Download</string>
-    <string name="store_delete">Delete</string>
-    <string name="store_load">Load</string>
-    <string name="store_save">Save</string>
-    <string name="store_upload_pr">Create theme upload PR</string>
-    <string name="store_url_import">Import theme by URL</string>
-    <string name="store_official_note">The official Xiaomi store has no public API. Themes from it can be imported by direct link.</string>
 
     <!-- Intro -->
     <string name="intro_skip">Skip</string>

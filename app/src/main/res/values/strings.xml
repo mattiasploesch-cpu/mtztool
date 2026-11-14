@@ -1,0 +1,398 @@
+<resources>
+    <string name="app_name" translatable="false">MTZ Tool</string>
+    <string name="shizuku_ready">Shizuku: Connected and Ready</string>
+    <string name="shizuku_permission">Shizuku: Not Connected</string>
+    <string name="no_file_selected">No file Selected</string>
+    <string name="select_file">Select File (mtz/bak)</string>
+    <string name="file_selected">Selected</string>
+    <string name="methods">Select a method</string>
+    <string name="direct_apply">Apply directly</string>
+    <string name="direct_apply_desc">Apply\'s the theme directly, may not work on some devices.</string>
+    <string name="theme_import">Import as theme</string>
+    <string name="theme_import_desc">Imports the theme to the Theme app</string>
+    <string name="direct_apply_banner">Apply Theme Directly</string>
+    <string name="theme_import_banner">import to the theme-store</string>
+    <string name="generate_apk">Export the Icon-Pack as APK</string>
+    <string name="warning_banner">Gestures may not work with a third party launcher</string>
+
+    <!-- Root theme application -->
+    <string name="apply_theme_title">Apply theme</string>
+    <string name="apply_theme_running">Applying theme through root…</string>
+    <string name="apply_theme_success">Theme applied</string>
+    <string name="apply_theme_failure">Theme could not be applied</string>
+    <string name="apply_theme_retry">Try again</string>
+    <string name="apply_theme_close">Close</string>
+    <string name="apply_theme_log">Log</string>
+    <string name="shizuku_not_running">Shizuku: Not Running</string>
+    <string name="shizuku_not_installed">Shizuku: Not Installed</string>
+    <string name="settings_name">Settings</string>
+    <string name="back">Back</string>
+    <string name="credits_name">Credits</string>
+    <string name="credits_app_description">Tool for applying and importing Xiaomi/MTZ themes (.mtz/.bak).</string>
+    <string name="credits_developer">Developer</string>
+    <string name="credits_libraries">Open-source libraries</string>
+    <string name="credits_thanks">Thanks to RikkaApps for Shizuku and to all contributors of the open-source libraries used.</string>
+
+    <!-- Privilege method -->
+    <string name="privilege_method">Privilege method</string>
+    <string name="privilege_method_desc">Choose how MTZ Tool should execute privileged commands.</string>
+    <string name="provider_adb">ADB</string>
+    <string name="provider_adb_desc">Via wireless debugging and a paired ADB connection.</string>
+    <string name="provider_shizuku">Shizuku</string>
+    <string name="provider_shizuku_desc">Recommended. Uses the Shizuku app for shell access.</string>
+    <string name="provider_dhizuku">Dhizuku</string>
+    <string name="provider_dhizuku_desc">Uses Device Owner permissions shared by Dhizuku.</string>
+    <string name="provider_root">Root</string>
+    <string name="provider_root_desc">Executes commands directly through su.</string>
+    <string name="recommended">Recommended</string>
+    <string name="provider_note">The selection is saved and the view below adapts accordingly.</string>
+
+    <!-- ADB -->
+    <string name="adb_status">Setup required</string>
+    <string name="adb_description">ADB cannot be used directly by apps. Wireless debugging must be enabled and paired on the device.</string>
+    <string name="adb_steps">Open developer options, enable wireless debugging and pair this device with a computer or a pairing tool.</string>
+    <string name="open_developer_options">Open developer options</string>
+
+    <!-- Dhizuku -->
+    <string name="dhizuku_installed">Dhizuku is installed</string>
+    <string name="dhizuku_not_installed">Dhizuku is not installed</string>
+    <string name="dhizuku_description">Dhizuku shares Device Owner permissions with other apps. Set it up in the Dhizuku app first.</string>
+    <string name="open_dhizuku">Open Dhizuku</string>
+    <string name="install_dhizuku">Install Dhizuku</string>
+
+    <!-- Root -->
+    <string name="root_not_tested">Root access not tested yet</string>
+    <string name="root_available">Root access available</string>
+    <string name="root_not_available">Root access not available</string>
+    <string name="root_description">Requires a rooted device with a working su binary and a root manager that grants access.</string>
+    <string name="test_root">Test root access</string>
+    <string name="checking">Testing…</string>
+    <string name="refresh">Refresh</string>
+    <string name="allow">Allow</string>
+    <string name="root_timeout">Timed out – the root request was not confirmed.</string>
+    <string name="root_no_output">No output</string>
+    <string name="root_su_missing">su could not be started.</string>
+
+    <!-- Access readiness -->
+    <string name="access_not_ready">No privileged access method is ready yet. Open the settings to set one up.</string>
+
+    <!-- ADB status -->
+    <string name="adb_enabled">ADB debugging is active</string>
+    <string name="adb_disabled">ADB debugging is not active</string>
+    <string name="check_adb">Check ADB status</string>
+
+    <!-- Language -->
+    <string name="language">Language</string>
+    <string name="language_desc">Choose the app language. “System default” follows the device language.</string>
+    <string name="language_system">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_german">German</string>
+
+    <!-- Settings backup -->
+    <string name="settings_backup">Backup settings</string>
+    <string name="settings_backup_desc">Export the current settings to a JSON file or restore them from a backup.</string>
+    <string name="export_settings">Export</string>
+    <string name="import_settings">Import</string>
+    <string name="export_success">Settings exported.</string>
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="import_success">Settings imported.</string>
+    <string name="import_failed">Import failed: %1$s</string>
+
+    <!-- Developer mode -->
+    <string name="developer_mode">Developer mode</string>
+    <string name="developer_mode_active">Developer mode is active.</string>
+    <string name="developer_mode_disable">Disable developer mode</string>
+    <string name="developer_mode_disabled">Developer mode disabled.</string>
+    <string name="developer_mode_activated">Developer mode enabled.</string>
+    <string name="developer_mode_already_active">Developer mode is already enabled.</string>
+    <string name="developer_mode_taps_remaining">Tap the version %1$d more times to enable developer mode.</string>
+    <string name="open_developer_tools">Open developer tools</string>
+    <string name="version">Version</string>
+    <string name="version_tap_hint">Tap the version 5 times to enable developer mode.</string>
+
+    <!-- Developer screen -->
+    <string name="developer_intro">This area is only visible while developer mode is enabled. It shows diagnostics for the privileged access layer.</string>
+    <string name="developer_info">Diagnostics</string>
+    <string name="developer_info_desc">Current state of the app and the selected access method.</string>
+    <string name="developer_provider">Access method</string>
+    <string name="developer_shizuku">Shizuku status</string>
+    <string name="developer_root">Root status</string>
+    <string name="developer_version">App version</string>
+    <string name="developer_android">Android</string>
+    <string name="developer_device">Device</string>
+    <string name="developer_reset_root">Reset root test</string>
+    <string name="developer_root_reset">Root test reset.</string>
+
+    <!-- Tools -->
+    <string name="tools_name">Tools</string>
+    <string name="tools_desc">Inspect, compare and export MTZ themes and rights files locally on the device.</string>
+    <string name="tool_inspector">Theme inspector</string>
+    <string name="tool_inspector_desc">Shows metadata, components, sizes and the rights status of a theme file.</string>
+    <string name="tool_compare">Compare themes</string>
+    <string name="tool_compare_desc">Compares two theme files and lists added, missing and changed components.</string>
+    <string name="tool_mra_checker">MRA checker</string>
+    <string name="tool_mra_checker_desc">Checks .mra rights files for a valid Xiaomi signature and shows the covered assets.</string>
+    <string name="tool_extractor">Component export</string>
+    <string name="tool_extractor_desc">Exports individual components of a theme as separate files.</string>
+    <string name="tool_previews">Preview gallery</string>
+    <string name="tool_previews_desc">Displays all preview images of a theme and lets you save them.</string>
+
+    <!-- Tool common -->
+    <string name="tool_theme_file">Theme file</string>
+    <string name="tool_mra_files">Rights files (.mra)</string>
+    <string name="tool_first_theme">First theme</string>
+    <string name="tool_second_theme">Second theme</string>
+    <string name="tool_no_file_selected">No file selected</string>
+    <string name="tool_pick_theme">Choose theme file</string>
+    <string name="tool_pick_another_theme">Choose another theme file</string>
+    <string name="tool_pick_mra">Choose .mra files</string>
+    <string name="tool_pick_first_theme">Choose first theme</string>
+    <string name="tool_pick_second_theme">Choose second theme</string>
+    <string name="tool_loading">Reading theme…</string>
+    <string name="tool_export">Export</string>
+    <string name="tool_save">Save</string>
+    <string name="tool_export_success">File saved.</string>
+    <string name="tool_export_failed">Could not save file: %1$s</string>
+
+    <!-- Theme information -->
+    <string name="theme_kind_mtz">MTZ archive</string>
+    <string name="theme_kind_backup">MIUI backup</string>
+    <string name="theme_author">Author</string>
+    <string name="theme_version">Version</string>
+    <string name="theme_platform">Platform</string>
+    <string name="theme_component_count">Components</string>
+    <string name="theme_size">Size</string>
+    <string name="theme_hash">Theme hash</string>
+    <string name="theme_rights">Rights</string>
+    <string name="theme_full">Full theme</string>
+    <string name="theme_partial">Reduced theme (rights missing)</string>
+    <string name="theme_valid_mras">Valid rights files</string>
+    <string name="theme_preview_count">Preview images</string>
+    <string name="theme_components">Components</string>
+    <string name="component_exempt">No rights needed</string>
+    <string name="component_protected">Rights required</string>
+    <string name="component_covered">Covered</string>
+    <string name="component_uncovered">Not covered</string>
+    <string name="component_sha1">SHA-1</string>
+
+    <!-- Theme compare -->
+    <string name="compare_result">Comparison</string>
+    <string name="compare_only_first">Only in the first theme</string>
+    <string name="compare_only_second">Only in the second theme</string>
+    <string name="compare_changed">Changed components</string>
+    <string name="compare_identical_count">%1$d identical components</string>
+    <string name="compare_no_differences">No differences found.</string>
+    <string name="compare_waiting">Choose the second theme to see the comparison.</string>
+    <string name="compare_multiple_candidates">The file contains several themes. Only the first one is compared.</string>
+
+    <!-- MRA checker -->
+    <string name="mra_signature_valid">Signature valid</string>
+    <string name="mra_signature_invalid">Signature invalid</string>
+    <string name="mra_theme_hash">Theme hash</string>
+    <string name="mra_asset_count">Covered assets</string>
+    <string name="mra_error">Error</string>
+    <string name="mra_hint">Only .mra files signed by Xiaomi are accepted by the Theme Manager. Self-created rights files cannot pass this check.</string>
+    <string name="mra_none_selected">No .mra files selected yet.</string>
+    <string name="mra_read_failed">The file could not be read.</string>
+    <string name="mra_summary">%1$d of %2$d rights files are valid.</string>
+
+    <!-- Component export -->
+    <string name="extractor_component">Component</string>
+    <string name="extractor_choose_theme">Choose theme</string>
+    <string name="extractor_no_components">This theme contains no components.</string>
+    <string name="extractor_code">Resource code</string>
+
+    <!-- Preview gallery -->
+    <string name="previews_none">This theme contains no preview images.</string>
+    <string name="previews_decode_failed">The image could not be decoded.</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_disable">Disable</string>
+    <string name="common_use_workspace">Use workspace theme</string>
+    <string name="open_shizuku">Open Shizuku</string>
+    <string name="version_tap_short">Tap</string>
+
+    <!-- Setup wizard -->
+    <string name="setup_title">Welcome to MTZ Tool</string>
+    <string name="setup_subtitle">Three quick steps to set up your theme workshop.</string>
+    <string name="setup_step_theme">Appearance</string>
+    <string name="setup_step_language">Language</string>
+    <string name="setup_step_access">Access</string>
+    <string name="setup_theme_title">Choose your look</string>
+    <string name="setup_theme_body">Pick one of six color families, each with light and dark variants. You can change everything later in the settings.</string>
+    <string name="setup_mode_title">Display mode</string>
+    <string name="setup_mode_system">System</string>
+    <string name="setup_mode_light">Light</string>
+    <string name="setup_mode_dark">Dark</string>
+    <string name="setup_mode_amoled">AMOLED black</string>
+    <string name="setup_theme_family">Color family</string>
+    <string name="setup_language_title">Your language</string>
+    <string name="setup_language_body">Choose the language used by MTZ Tool. “System default” follows the device language.</string>
+    <string name="setup_access_title">How should themes be applied?</string>
+    <string name="setup_access_body">Root writes themes directly to the system theme directory. Shizuku hands the file to the Xiaomi Theme Manager without root.</string>
+    <string name="setup_access_note">You can switch the privilege method at any time. Root is only used when Root is selected here.</string>
+    <string name="setup_ready_title">Ready to go</string>
+    <string name="setup_ready_body">Open an .mtz or .bak once, then reuse the same in-memory theme across every tool: apply, patch, inspect, compare, export and build icon packs.</string>
+    <string name="setup_back">Back</string>
+    <string name="setup_next">Continue</string>
+    <string name="setup_finish">Start MTZ Tool</string>
+    <string name="setup_skip">Skip</string>
+
+    <!-- Settings: appearance -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_desc">Theme family, display mode and dynamic color.</string>
+    <string name="settings_theme_family">Theme family</string>
+    <string name="settings_theme_mode">Display mode</string>
+    <string name="settings_dynamic_color">Dynamic color</string>
+    <string name="settings_dynamic_color_desc">Use wallpaper colors on Android 12+ (Material 3 only).</string>
+    <string name="settings_rerun_wizard">Setup wizard</string>
+    <string name="settings_rerun_wizard_desc">Run the first-start assistant again.</string>
+    <string name="settings_open">Open</string>
+
+    <!-- Settings: access -->
+    <string name="settings_access">Privileged access</string>
+    <string name="settings_access_desc">Choose how MTZ Tool executes privileged commands.</string>
+
+    <!-- Settings: behaviour -->
+    <string name="settings_behavior">Behaviour</string>
+    <string name="settings_behavior_desc">Confirmations, safety checks and tool features.</string>
+    <string name="settings_confirm_apply">Confirm before applying</string>
+    <string name="settings_confirm_apply_desc">Show a dialog before a theme is applied.</string>
+    <string name="settings_keep_screen_on">Keep screen on while applying</string>
+    <string name="settings_keep_screen_on_desc">Prevents the display from sleeping during long operations.</string>
+    <string name="settings_strict_rights">Strict rights checking</string>
+    <string name="settings_strict_rights_desc">Treat reduced themes as errors instead of showing a warning.</string>
+    <string name="settings_experimental_patcher">Experimental MTZ patcher</string>
+    <string name="settings_experimental_patcher_desc">Enable rewriting metadata, components and wallpapers.</string>
+    <string name="settings_raw_codes">Show raw component codes</string>
+    <string name="settings_raw_codes_desc">Display internal codes next to friendly component names.</string>
+    <string name="settings_bundled_visible">Show bundled theme shortcut</string>
+    <string name="settings_bundled_visible_desc">Adds a developer shortcut for the theme shipped inside the APK.</string>
+
+    <!-- Settings: logging -->
+    <string name="settings_logging">Logging</string>
+    <string name="settings_logging_desc">Control the shared log console used by every tool.</string>
+    <string name="settings_log_autoscroll">Auto-scroll log</string>
+    <string name="settings_log_autoscroll_desc">Always jump to the newest log entry.</string>
+    <string name="settings_log_verbose">Verbose logging</string>
+    <string name="settings_log_verbose_desc">Also write informational entries to logcat.</string>
+    <string name="settings_max_log_entries">Maximum log entries</string>
+
+    <!-- Settings: updates -->
+    <string name="settings_updates_desc">Check GitHub Releases and install updates inside the app.</string>
+    <string name="settings_auto_check">Automatic update checks</string>
+    <string name="settings_auto_check_desc">Check for updates when the app starts, respecting the interval below.</string>
+    <string name="settings_update_channel">Update channel</string>
+    <string name="settings_update_interval">Check interval</string>
+    <string name="settings_open_updates">Updates</string>
+
+    <!-- Settings: backup / reset / about -->
+    <string name="settings_bug_report">Bug report</string>
+    <string name="settings_reset">Reset all settings</string>
+    <string name="settings_reset_desc">Restore every option to its default value.</string>
+    <string name="settings_reset_button">Reset</string>
+    <string name="settings_reset_confirm">This clears the language, theme, privilege method and every other setting. The app restarts with the setup wizard.</string>
+    <string name="settings_reset_done">Settings reset.</string>
+    <string name="settings_about">About</string>
+
+    <!-- Developer options -->
+    <string name="developer_advanced_subtitle">Every setting and diagnostic in one place.</string>
+    <string name="developer_everything_hint">This screen exposes every persisted option. Changes are applied immediately and can be exported with the settings backup.</string>
+    <string name="developer_diagnostics">Diagnostics</string>
+    <string name="developer_diagnostics_desc">Live state of the app, privilege layer and workspace.</string>
+    <string name="developer_package">Package</string>
+    <string name="developer_theme_family">Theme family</string>
+    <string name="developer_theme_mode">Display mode</string>
+    <string name="developer_language">Language</string>
+    <string name="developer_workspace">Workspace theme</string>
+    <string name="developer_last_check">Last update check</string>
+    <string name="developer_skipped_version">Skipped update</string>
+    <string name="developer_update_settings">Update system</string>
+    <string name="developer_update_settings_desc">Channel, repository, manifest, installer and downgrade behaviour.</string>
+    <string name="developer_shell_install">Silent in-app updates</string>
+    <string name="developer_shell_install_desc">Install downloaded APKs with pm install through Root/Shizuku instead of the system installer.</string>
+    <string name="developer_allow_downgrade">Allow downgrades</string>
+    <string name="developer_allow_downgrade_desc">Pass -d to pm install. Useful when testing older builds.</string>
+    <string name="developer_debug_channel">Show debug channel</string>
+    <string name="developer_debug_channel_desc">Expose nightly/debug builds in the update screen.</string>
+    <string name="developer_repo">GitHub repository</string>
+    <string name="developer_manifest">Custom update manifest</string>
+    <string name="developer_edit">Edit</string>
+    <string name="developer_reset_update">Reset update state</string>
+    <string name="developer_appearance">Appearance &amp; language</string>
+    <string name="developer_access">Privilege engine</string>
+    <string name="developer_access_note">Root timeout is used by the root check. The shell user is stored for advanced integrations; the default is “shell”.</string>
+    <string name="developer_root_timeout">Root timeout</string>
+    <string name="developer_shell_user">Shell user</string>
+    <string name="developer_workspace_tools">Workspace &amp; logs</string>
+    <string name="developer_clear_logs">Clear log</string>
+    <string name="developer_clear_workspace">Clear workspace</string>
+    <string name="developer_danger_zone">Danger zone</string>
+    <string name="developer_danger_desc">Resetting deletes all preferences and returns to the setup wizard.</string>
+
+    <!-- Updates -->
+    <string name="updates_title">Updates</string>
+    <string name="updates_installed">Installed version</string>
+    <string name="updates_check">Check for updates</string>
+    <string name="updates_checking">Checking for updates…</string>
+    <string name="updates_stable">Stable channel</string>
+    <string name="updates_prerelease">Pre-release channel</string>
+    <string name="updates_stable_hint">Stable builds only. Pre-releases can be enabled in the developer options.</string>
+    <string name="updates_prerelease_hint">Pre-releases are early builds and may contain bugs. This channel is only available with developer mode.</string>
+    <string name="updates_download">Download update</string>
+    <string name="updates_downloading">Downloading…</string>
+    <string name="updates_installing">Installing…</string>
+    <string name="updates_install">Install update</string>
+    <string name="updates_internal_install">Internal installation via Root/Shizuku. The app may restart.</string>
+    <string name="updates_fallback_install">No shell available: the system installer opens as a fallback.</string>
+    <string name="updates_up_to_date">You are running the latest version.</string>
+    <string name="updates_open_github">Open release on GitHub</string>
+    <string name="updates_open_dev">Open update settings</string>
+
+    <!-- MTZ patcher -->
+    <string name="patcher_title">MTZ patcher</string>
+    <string name="patcher_intro">Edit metadata, remove components and replace wallpapers, then export a ready-to-use .mtz.</string>
+    <string name="patcher_open">Open theme</string>
+    <string name="patcher_analyzing">Analyzing theme…</string>
+    <string name="patcher_metadata">Theme metadata</string>
+    <string name="patcher_field_title">Title</string>
+    <string name="patcher_author">Author</string>
+    <string name="patcher_version">Version</string>
+    <string name="patcher_designer">Designer</string>
+    <string name="patcher_description">Description</string>
+    <string name="patcher_content">Contents</string>
+    <string name="patcher_remove_hint">Uncheck a component to remove it from the exported theme.</string>
+    <string name="patcher_no_components">No removable components found.</string>
+    <string name="patcher_wallpaper">Wallpapers</string>
+    <string name="patcher_system_wallpaper">Home screen wallpaper</string>
+    <string name="patcher_lock_wallpaper">Lock screen wallpaper</string>
+    <string name="patcher_export_name">File name</string>
+    <string name="patcher_export">Export</string>
+
+    <!-- Icon pack -->
+    <string name="icon_pack_title">Icon pack</string>
+    <string name="icon_pack_desc">Extract the icons stored in a theme and build a signed launcher icon pack APK.</string>
+    <string name="icon_pack_build">Build icon pack</string>
+    <string name="icon_pack_install">Install</string>
+
+    <!-- Bug report -->
+    <string name="bug_report_title">Bug report</string>
+    <string name="bug_report_subtitle">Report directly to the GitHub issue tracker.</string>
+    <string name="bug_report_intro">Describe the problem. Device details, logs and settings can be attached automatically.</string>
+    <string name="bug_report_category_bug">Bug</string>
+    <string name="bug_report_category_feature">Feature</string>
+    <string name="bug_report_short_title">Short title</string>
+    <string name="bug_report_description">What happened?</string>
+    <string name="bug_report_steps">Steps to reproduce</string>
+    <string name="bug_report_expected">Expected behaviour</string>
+    <string name="bug_report_include_device">Include device and app diagnostics</string>
+    <string name="bug_report_include_logs">Include the shared log</string>
+    <string name="bug_report_include_settings">Include all app settings (JSON)</string>
+    <string name="bug_report_preview">Attached diagnostics preview</string>
+    <string name="bug_report_open">Open GitHub issue</string>
+    <string name="bug_report_copy">Copy report</string>
+    <string name="bug_report_copied">Report copied to clipboard.</string>
+    <string name="bug_report_privacy">Nothing is uploaded automatically. The report is created in your browser on GitHub.</string>
+</resources>

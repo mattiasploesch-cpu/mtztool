@@ -1,0 +1,398 @@
+<resources>
+    <string name="app_name" translatable="false">MTZ Tool</string>
+    <string name="shizuku_ready">Shizuku: подключён и готов</string>
+    <string name="shizuku_permission">Shizuku: нет подключения</string>
+    <string name="no_file_selected">Файл не выбран</string>
+    <string name="select_file">Выбрать файл (mtz/bak)</string>
+    <string name="file_selected">Выбрано</string>
+    <string name="methods">Выберите способ</string>
+    <string name="direct_apply">Применить напрямую</string>
+    <string name="direct_apply_desc">Применяет тему напрямую, на некоторых устройствах может не работать.</string>
+    <string name="theme_import">Импортировать как тему</string>
+    <string name="theme_import_desc">Импортирует тему в приложение «Темы»</string>
+    <string name="direct_apply_banner">Применить тему напрямую</string>
+    <string name="theme_import_banner">импорт в магазин тем</string>
+    <string name="generate_apk">Экспортировать набор иконок как APK</string>
+    <string name="warning_banner">Жесты могут не работать со сторонним лаунчером</string>
+
+    <!-- Root theme application -->
+    <string name="apply_theme_title">Применить тему</string>
+    <string name="apply_theme_running">Применение темы через root…</string>
+    <string name="apply_theme_success">Тема применена</string>
+    <string name="apply_theme_failure">Не удалось применить тему</string>
+    <string name="apply_theme_retry">Повторить</string>
+    <string name="apply_theme_close">Закрыть</string>
+    <string name="apply_theme_log">Журнал</string>
+    <string name="shizuku_not_running">Shizuku: не запущен</string>
+    <string name="shizuku_not_installed">Shizuku: не установлен</string>
+    <string name="settings_name">Настройки</string>
+    <string name="back">Назад</string>
+    <string name="credits_name">Благодарности</string>
+    <string name="credits_app_description">Инструмент для применения и импорта тем Xiaomi/MTZ (.mtz/.bak).</string>
+    <string name="credits_developer">Разработчик</string>
+    <string name="credits_libraries">Библиотеки с открытым кодом</string>
+    <string name="credits_thanks">Спасибо RikkaApps за Shizuku и всем участникам используемых библиотек с открытым кодом.</string>
+
+    <!-- Privilege method -->
+    <string name="privilege_method">Способ доступа</string>
+    <string name="privilege_method_desc">Выберите, как MTZ Tool должен выполнять привилегированные команды.</string>
+    <string name="provider_adb">ADB</string>
+    <string name="provider_adb_desc">Через отладку по Wi-Fi и сопряжённое подключение ADB.</string>
+    <string name="provider_shizuku">Shizuku</string>
+    <string name="provider_shizuku_desc">Рекомендуется. Использует приложение Shizuku для доступа к оболочке.</string>
+    <string name="provider_dhizuku">Dhizuku</string>
+    <string name="provider_dhizuku_desc">Использует права владельца устройства, предоставляемые Dhizuku.</string>
+    <string name="provider_root">Root</string>
+    <string name="provider_root_desc">Выполняет команды напрямую через su.</string>
+    <string name="recommended">Рекомендуется</string>
+    <string name="provider_note">Выбор сохраняется, и раздел ниже обновляется соответственно.</string>
+
+    <!-- ADB -->
+    <string name="adb_status">Требуется настройка</string>
+    <string name="adb_description">Приложения не могут использовать ADB напрямую. На устройстве нужно включить отладку по Wi-Fi и выполнить сопряжение.</string>
+    <string name="adb_steps">Откройте параметры разработчика, включите отладку по Wi-Fi и сопряжите устройство с компьютером или инструментом сопряжения.</string>
+    <string name="open_developer_options">Открыть параметры разработчика</string>
+
+    <!-- Dhizuku -->
+    <string name="dhizuku_installed">Dhizuku установлен</string>
+    <string name="dhizuku_not_installed">Dhizuku не установлен</string>
+    <string name="dhizuku_description">Dhizuku передаёт права владельца устройства другим приложениям. Сначала настройте его в приложении Dhizuku.</string>
+    <string name="open_dhizuku">Открыть Dhizuku</string>
+    <string name="install_dhizuku">Установить Dhizuku</string>
+
+    <!-- Root -->
+    <string name="root_not_tested">Доступ root ещё не проверен</string>
+    <string name="root_available">Доступ root есть</string>
+    <string name="root_not_available">Доступ root отсутствует</string>
+    <string name="root_description">Требуется устройство с root, рабочим бинарником su и менеджером root, который выдаёт доступ.</string>
+    <string name="test_root">Проверить доступ root</string>
+    <string name="checking">Проверка…</string>
+    <string name="refresh">Обновить</string>
+    <string name="allow">Разрешить</string>
+    <string name="root_timeout">Время ожидания истекло — запрос root не подтверждён.</string>
+    <string name="root_no_output">Нет вывода</string>
+    <string name="root_su_missing">Не удалось запустить su.</string>
+
+    <!-- Access readiness -->
+    <string name="access_not_ready">Ни один способ привилегированного доступа ещё не готов. Откройте настройки, чтобы его настроить.</string>
+
+    <!-- ADB status -->
+    <string name="adb_enabled">Отладка ADB активна</string>
+    <string name="adb_disabled">Отладка ADB не активна</string>
+    <string name="check_adb">Проверить состояние ADB</string>
+
+    <!-- Language -->
+    <string name="language">Язык</string>
+    <string name="language_desc">Выберите язык приложения. «Системный по умолчанию» следует языку устройства.</string>
+    <string name="language_system">Системный по умолчанию</string>
+    <string name="language_english">Английский</string>
+    <string name="language_german">Немецкий</string>
+
+    <!-- Settings backup -->
+    <string name="settings_backup">Резервная копия настроек</string>
+    <string name="settings_backup_desc">Экспортируйте текущие настройки в файл JSON или восстановите их из резервной копии.</string>
+    <string name="export_settings">Экспорт</string>
+    <string name="import_settings">Импорт</string>
+    <string name="export_success">Настройки экспортированы.</string>
+    <string name="export_failed">Ошибка экспорта: %1$s</string>
+    <string name="import_success">Настройки импортированы.</string>
+    <string name="import_failed">Ошибка импорта: %1$s</string>
+
+    <!-- Developer mode -->
+    <string name="developer_mode">Режим разработчика</string>
+    <string name="developer_mode_active">Режим разработчика включён.</string>
+    <string name="developer_mode_disable">Отключить режим разработчика</string>
+    <string name="developer_mode_disabled">Режим разработчика отключён.</string>
+    <string name="developer_mode_activated">Режим разработчика включён.</string>
+    <string name="developer_mode_already_active">Режим разработчика уже включён.</string>
+    <string name="developer_mode_taps_remaining">Нажмите на версию ещё %1$d раз(а), чтобы включить режим разработчика.</string>
+    <string name="open_developer_tools">Открыть инструменты разработчика</string>
+    <string name="version">Версия</string>
+    <string name="version_tap_hint">Нажмите на версию 5 раз, чтобы включить режим разработчика.</string>
+
+    <!-- Developer screen -->
+    <string name="developer_intro">Этот раздел виден только при включённом режиме разработчика. Здесь показана диагностика слоя привилегированного доступа.</string>
+    <string name="developer_info">Диагностика</string>
+    <string name="developer_info_desc">Текущее состояние приложения и выбранного способа доступа.</string>
+    <string name="developer_provider">Способ доступа</string>
+    <string name="developer_shizuku">Состояние Shizuku</string>
+    <string name="developer_root">Состояние root</string>
+    <string name="developer_version">Версия приложения</string>
+    <string name="developer_android">Android</string>
+    <string name="developer_device">Устройство</string>
+    <string name="developer_reset_root">Сбросить проверку root</string>
+    <string name="developer_root_reset">Проверка root сброшена.</string>
+
+    <!-- Tools -->
+    <string name="tools_name">Инструменты</string>
+    <string name="tools_desc">Просматривайте, сравнивайте и экспортируйте темы MTZ и файлы прав локально на устройстве.</string>
+    <string name="tool_inspector">Инспектор тем</string>
+    <string name="tool_inspector_desc">Показывает метаданные, компоненты, размеры и статус прав файла темы.</string>
+    <string name="tool_compare">Сравнить темы</string>
+    <string name="tool_compare_desc">Сравнивает два файла тем и показывает добавленные, отсутствующие и изменённые компоненты.</string>
+    <string name="tool_mra_checker">Проверка MRA</string>
+    <string name="tool_mra_checker_desc">Проверяет файлы прав .mra на действительную подпись Xiaomi и показывает охваченные ресурсы.</string>
+    <string name="tool_extractor">Экспорт компонентов</string>
+    <string name="tool_extractor_desc">Экспортирует отдельные компоненты темы как самостоятельные файлы.</string>
+    <string name="tool_previews">Галерея превью</string>
+    <string name="tool_previews_desc">Показывает все изображения превью темы и позволяет сохранить их.</string>
+
+    <!-- Tool common -->
+    <string name="tool_theme_file">Файл темы</string>
+    <string name="tool_mra_files">Файлы прав (.mra)</string>
+    <string name="tool_first_theme">Первая тема</string>
+    <string name="tool_second_theme">Вторая тема</string>
+    <string name="tool_no_file_selected">Файл не выбран</string>
+    <string name="tool_pick_theme">Выбрать файл темы</string>
+    <string name="tool_pick_another_theme">Выбрать другой файл темы</string>
+    <string name="tool_pick_mra">Выбрать файлы .mra</string>
+    <string name="tool_pick_first_theme">Выбрать первую тему</string>
+    <string name="tool_pick_second_theme">Выбрать вторую тему</string>
+    <string name="tool_loading">Чтение темы…</string>
+    <string name="tool_export">Экспорт</string>
+    <string name="tool_save">Сохранить</string>
+    <string name="tool_export_success">Файл сохранён.</string>
+    <string name="tool_export_failed">Не удалось сохранить файл: %1$s</string>
+
+    <!-- Theme information -->
+    <string name="theme_kind_mtz">Архив MTZ</string>
+    <string name="theme_kind_backup">Резервная копия MIUI</string>
+    <string name="theme_author">Автор</string>
+    <string name="theme_version">Версия</string>
+    <string name="theme_platform">Платформа</string>
+    <string name="theme_component_count">Компоненты</string>
+    <string name="theme_size">Размер</string>
+    <string name="theme_hash">Хеш темы</string>
+    <string name="theme_rights">Права</string>
+    <string name="theme_full">Полная тема</string>
+    <string name="theme_partial">Неполная тема (не хватает прав)</string>
+    <string name="theme_valid_mras">Действительные файлы прав</string>
+    <string name="theme_preview_count">Изображения превью</string>
+    <string name="theme_components">Компоненты</string>
+    <string name="component_exempt">Права не требуются</string>
+    <string name="component_protected">Требуются права</string>
+    <string name="component_covered">Охвачено</string>
+    <string name="component_uncovered">Не охвачено</string>
+    <string name="component_sha1">SHA-1</string>
+
+    <!-- Theme compare -->
+    <string name="compare_result">Сравнение</string>
+    <string name="compare_only_first">Только в первой теме</string>
+    <string name="compare_only_second">Только во второй теме</string>
+    <string name="compare_changed">Изменённые компоненты</string>
+    <string name="compare_identical_count">Совпадающих компонентов: %1$d</string>
+    <string name="compare_no_differences">Различий не найдено.</string>
+    <string name="compare_waiting">Выберите вторую тему, чтобы увидеть сравнение.</string>
+    <string name="compare_multiple_candidates">Файл содержит несколько тем. Сравнивается только первая.</string>
+
+    <!-- MRA checker -->
+    <string name="mra_signature_valid">Подпись действительна</string>
+    <string name="mra_signature_invalid">Подпись недействительна</string>
+    <string name="mra_theme_hash">Хеш темы</string>
+    <string name="mra_asset_count">Охваченные ресурсы</string>
+    <string name="mra_error">Ошибка</string>
+    <string name="mra_hint">Theme Manager принимает только файлы .mra, подписанные Xiaomi. Созданные вручную файлы прав не пройдут эту проверку.</string>
+    <string name="mra_none_selected">Файлы .mra ещё не выбраны.</string>
+    <string name="mra_read_failed">Не удалось прочитать файл.</string>
+    <string name="mra_summary">Действительных файлов прав: %1$d из %2$d.</string>
+
+    <!-- Component export -->
+    <string name="extractor_component">Компонент</string>
+    <string name="extractor_choose_theme">Выбрать тему</string>
+    <string name="extractor_no_components">Эта тема не содержит компонентов.</string>
+    <string name="extractor_code">Код ресурса</string>
+
+    <!-- Preview gallery -->
+    <string name="previews_none">Эта тема не содержит изображений превью.</string>
+    <string name="previews_decode_failed">Не удалось декодировать изображение.</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Отмена</string>
+    <string name="common_save">Сохранить</string>
+    <string name="common_disable">Отключить</string>
+    <string name="common_use_workspace">Использовать тему рабочей области</string>
+    <string name="open_shizuku">Открыть Shizuku</string>
+    <string name="version_tap_short">Нажмите</string>
+
+    <!-- Setup wizard -->
+    <string name="setup_title">Добро пожаловать в MTZ Tool</string>
+    <string name="setup_subtitle">Три коротких шага для настройки вашей мастерской тем.</string>
+    <string name="setup_step_theme">Оформление</string>
+    <string name="setup_step_language">Язык</string>
+    <string name="setup_step_access">Доступ</string>
+    <string name="setup_theme_title">Выберите оформление</string>
+    <string name="setup_theme_body">Выберите одно из шести цветовых семейств, каждое со светлым и тёмным вариантом. Всё можно изменить позже в настройках.</string>
+    <string name="setup_mode_title">Режим отображения</string>
+    <string name="setup_mode_system">Системный</string>
+    <string name="setup_mode_light">Светлый</string>
+    <string name="setup_mode_dark">Тёмный</string>
+    <string name="setup_mode_amoled">Чёрный AMOLED</string>
+    <string name="setup_theme_family">Цветовое семейство</string>
+    <string name="setup_language_title">Ваш язык</string>
+    <string name="setup_language_body">Выберите язык MTZ Tool. «Системный по умолчанию» следует языку устройства.</string>
+    <string name="setup_access_title">Как применять темы?</string>
+    <string name="setup_access_body">Root записывает темы напрямую в системный каталог тем. Shizuku передаёт файл в Xiaomi Theme Manager без root.</string>
+    <string name="setup_access_note">Способ привилегированного доступа можно сменить в любое время. Root используется, только если он выбран здесь.</string>
+    <string name="setup_ready_title">Всё готово</string>
+    <string name="setup_ready_body">Откройте .mtz или .bak один раз и затем используйте эту тему в памяти во всех инструментах: применение, изменение, просмотр, сравнение, экспорт и сборка наборов иконок.</string>
+    <string name="setup_back">Назад</string>
+    <string name="setup_next">Продолжить</string>
+    <string name="setup_finish">Запустить MTZ Tool</string>
+    <string name="setup_skip">Пропустить</string>
+
+    <!-- Settings: appearance -->
+    <string name="settings_appearance">Оформление</string>
+    <string name="settings_appearance_desc">Цветовое семейство, режим отображения и динамический цвет.</string>
+    <string name="settings_theme_family">Цветовое семейство</string>
+    <string name="settings_theme_mode">Режим отображения</string>
+    <string name="settings_dynamic_color">Динамический цвет</string>
+    <string name="settings_dynamic_color_desc">Использовать цвета обоев на Android 12+ (только Material 3).</string>
+    <string name="settings_rerun_wizard">Мастер настройки</string>
+    <string name="settings_rerun_wizard_desc">Запустить помощник первого запуска снова.</string>
+    <string name="settings_open">Открыть</string>
+
+    <!-- Settings: access -->
+    <string name="settings_access">Привилегированный доступ</string>
+    <string name="settings_access_desc">Выберите, как MTZ Tool выполняет привилегированные команды.</string>
+
+    <!-- Settings: behaviour -->
+    <string name="settings_behavior">Поведение</string>
+    <string name="settings_behavior_desc">Подтверждения, проверки безопасности и функции инструментов.</string>
+    <string name="settings_confirm_apply">Подтверждать перед применением</string>
+    <string name="settings_confirm_apply_desc">Показывать диалог перед применением темы.</string>
+    <string name="settings_keep_screen_on">Не выключать экран при применении</string>
+    <string name="settings_keep_screen_on_desc">Не даёт экрану засыпать во время длительных операций.</string>
+    <string name="settings_strict_rights">Строгая проверка прав</string>
+    <string name="settings_strict_rights_desc">Считать неполные темы ошибкой вместо предупреждения.</string>
+    <string name="settings_experimental_patcher">Экспериментальный патчер MTZ</string>
+    <string name="settings_experimental_patcher_desc">Включить изменение метаданных, компонентов и обоев.</string>
+    <string name="settings_raw_codes">Показывать исходные коды компонентов</string>
+    <string name="settings_raw_codes_desc">Показывать внутренние коды рядом с понятными названиями компонентов.</string>
+    <string name="settings_bundled_visible">Показывать ярлык встроенной темы</string>
+    <string name="settings_bundled_visible_desc">Добавляет ярлык разработчика для темы, встроенной в APK.</string>
+
+    <!-- Settings: logging -->
+    <string name="settings_logging">Журналирование</string>
+    <string name="settings_logging_desc">Управление общей консолью журнала, используемой всеми инструментами.</string>
+    <string name="settings_log_autoscroll">Автопрокрутка журнала</string>
+    <string name="settings_log_autoscroll_desc">Всегда переходить к последней записи журнала.</string>
+    <string name="settings_log_verbose">Подробное журналирование</string>
+    <string name="settings_log_verbose_desc">Также записывать информационные записи в logcat.</string>
+    <string name="settings_max_log_entries">Максимум записей журнала</string>
+
+    <!-- Settings: updates -->
+    <string name="settings_updates_desc">Проверяйте GitHub Releases и устанавливайте обновления внутри приложения.</string>
+    <string name="settings_auto_check">Автоматическая проверка обновлений</string>
+    <string name="settings_auto_check_desc">Проверять обновления при запуске приложения с учётом интервала ниже.</string>
+    <string name="settings_update_channel">Канал обновлений</string>
+    <string name="settings_update_interval">Интервал проверки</string>
+    <string name="settings_open_updates">Обновления</string>
+
+    <!-- Settings: backup / reset / about -->
+    <string name="settings_bug_report">Сообщить об ошибке</string>
+    <string name="settings_reset">Сбросить все настройки</string>
+    <string name="settings_reset_desc">Вернуть все параметры к значениям по умолчанию.</string>
+    <string name="settings_reset_button">Сбросить</string>
+    <string name="settings_reset_confirm">Это очистит язык, тему, способ доступа и все остальные настройки. Приложение перезапустится с мастером настройки.</string>
+    <string name="settings_reset_done">Настройки сброшены.</string>
+    <string name="settings_about">О приложении</string>
+
+    <!-- Developer options -->
+    <string name="developer_advanced_subtitle">Все настройки и диагностика в одном месте.</string>
+    <string name="developer_everything_hint">На этом экране показаны все сохранённые параметры. Изменения применяются сразу и могут быть экспортированы вместе с резервной копией настроек.</string>
+    <string name="developer_diagnostics">Диагностика</string>
+    <string name="developer_diagnostics_desc">Текущее состояние приложения, слоя привилегий и рабочей области.</string>
+    <string name="developer_package">Пакет</string>
+    <string name="developer_theme_family">Цветовое семейство</string>
+    <string name="developer_theme_mode">Режим отображения</string>
+    <string name="developer_language">Язык</string>
+    <string name="developer_workspace">Тема рабочей области</string>
+    <string name="developer_last_check">Последняя проверка обновлений</string>
+    <string name="developer_skipped_version">Пропущенное обновление</string>
+    <string name="developer_update_settings">Система обновлений</string>
+    <string name="developer_update_settings_desc">Канал, репозиторий, манифест, установщик и поведение при понижении версии.</string>
+    <string name="developer_shell_install">Тихая установка обновлений в приложении</string>
+    <string name="developer_shell_install_desc">Устанавливать загруженные APK через pm install с помощью Root/Shizuku вместо системного установщика.</string>
+    <string name="developer_allow_downgrade">Разрешить понижение версии</string>
+    <string name="developer_allow_downgrade_desc">Передавать -d в pm install. Полезно при тестировании старых сборок.</string>
+    <string name="developer_debug_channel">Показывать отладочный канал</string>
+    <string name="developer_debug_channel_desc">Показывать nightly/debug-сборки на экране обновлений.</string>
+    <string name="developer_repo">Репозиторий GitHub</string>
+    <string name="developer_manifest">Свой манифест обновлений</string>
+    <string name="developer_edit">Изменить</string>
+    <string name="developer_reset_update">Сбросить состояние обновлений</string>
+    <string name="developer_appearance">Оформление и язык</string>
+    <string name="developer_access">Движок привилегий</string>
+    <string name="developer_access_note">Тайм-аут root используется проверкой root. Пользователь оболочки сохраняется для расширенных интеграций; по умолчанию — «shell».</string>
+    <string name="developer_root_timeout">Тайм-аут root</string>
+    <string name="developer_shell_user">Пользователь оболочки</string>
+    <string name="developer_workspace_tools">Рабочая область и журналы</string>
+    <string name="developer_clear_logs">Очистить журнал</string>
+    <string name="developer_clear_workspace">Очистить рабочую область</string>
+    <string name="developer_danger_zone">Опасная зона</string>
+    <string name="developer_danger_desc">Сброс удаляет все настройки и возвращает к мастеру настройки.</string>
+
+    <!-- Updates -->
+    <string name="updates_title">Обновления</string>
+    <string name="updates_installed">Установленная версия</string>
+    <string name="updates_check">Проверить обновления</string>
+    <string name="updates_checking">Проверка обновлений…</string>
+    <string name="updates_stable">Стабильный канал</string>
+    <string name="updates_prerelease">Канал предварительных версий</string>
+    <string name="updates_stable_hint">Только стабильные сборки. Предварительные версии можно включить в параметрах разработчика.</string>
+    <string name="updates_prerelease_hint">Предварительные версии — ранние сборки и могут содержать ошибки. Этот канал доступен только в режиме разработчика.</string>
+    <string name="updates_download">Скачать обновление</string>
+    <string name="updates_downloading">Загрузка…</string>
+    <string name="updates_installing">Установка…</string>
+    <string name="updates_install">Установить обновление</string>
+    <string name="updates_internal_install">Внутренняя установка через Root/Shizuku. Приложение может перезапуститься.</string>
+    <string name="updates_fallback_install">Оболочка недоступна: откроется системный установщик.</string>
+    <string name="updates_up_to_date">У вас последняя версия.</string>
+    <string name="updates_open_github">Открыть релиз на GitHub</string>
+    <string name="updates_open_dev">Открыть настройки обновлений</string>
+
+    <!-- MTZ patcher -->
+    <string name="patcher_title">Патчер MTZ</string>
+    <string name="patcher_intro">Изменяйте метаданные, удаляйте компоненты и заменяйте обои, затем экспортируйте готовый .mtz.</string>
+    <string name="patcher_open">Открыть тему</string>
+    <string name="patcher_analyzing">Анализ темы…</string>
+    <string name="patcher_metadata">Метаданные темы</string>
+    <string name="patcher_field_title">Название</string>
+    <string name="patcher_author">Автор</string>
+    <string name="patcher_version">Версия</string>
+    <string name="patcher_designer">Дизайнер</string>
+    <string name="patcher_description">Описание</string>
+    <string name="patcher_content">Содержимое</string>
+    <string name="patcher_remove_hint">Снимите флажок с компонента, чтобы удалить его из экспортируемой темы.</string>
+    <string name="patcher_no_components">Съёмных компонентов не найдено.</string>
+    <string name="patcher_wallpaper">Обои</string>
+    <string name="patcher_system_wallpaper">Обои главного экрана</string>
+    <string name="patcher_lock_wallpaper">Обои экрана блокировки</string>
+    <string name="patcher_export_name">Имя файла</string>
+    <string name="patcher_export">Экспорт</string>
+
+    <!-- Icon pack -->
+    <string name="icon_pack_title">Набор иконок</string>
+    <string name="icon_pack_desc">Извлеките иконки из темы и соберите подписанный APK набора иконок для лаунчера.</string>
+    <string name="icon_pack_build">Собрать набор иконок</string>
+    <string name="icon_pack_install">Установить</string>
+
+    <!-- Bug report -->
+    <string name="bug_report_title">Сообщение об ошибке</string>
+    <string name="bug_report_subtitle">Отправка напрямую в трекер задач GitHub.</string>
+    <string name="bug_report_intro">Опишите проблему. Данные об устройстве, журналы и настройки можно приложить автоматически.</string>
+    <string name="bug_report_category_bug">Ошибка</string>
+    <string name="bug_report_category_feature">Функция</string>
+    <string name="bug_report_short_title">Краткое название</string>
+    <string name="bug_report_description">Что произошло?</string>
+    <string name="bug_report_steps">Шаги воспроизведения</string>
+    <string name="bug_report_expected">Ожидаемое поведение</string>
+    <string name="bug_report_include_device">Включить диагностику устройства и приложения</string>
+    <string name="bug_report_include_logs">Включить общий журнал</string>
+    <string name="bug_report_include_settings">Включить все настройки приложения (JSON)</string>
+    <string name="bug_report_preview">Предпросмотр приложенной диагностики</string>
+    <string name="bug_report_open">Открыть задачу на GitHub</string>
+    <string name="bug_report_copy">Копировать отчёт</string>
+    <string name="bug_report_copied">Отчёт скопирован в буфер обмена.</string>
+    <string name="bug_report_privacy">Ничего не отправляется автоматически. Отчёт создаётся в вашем браузере на GitHub.</string>
+</resources>

@@ -1,0 +1,398 @@
+<resources>
+    <string name="app_name" translatable="false">MTZ Tool</string>
+    <string name="shizuku_ready">Shizuku：已连接并就绪</string>
+    <string name="shizuku_permission">Shizuku：未连接</string>
+    <string name="no_file_selected">未选择文件</string>
+    <string name="select_file">选择文件（mtz/bak）</string>
+    <string name="file_selected">已选择</string>
+    <string name="methods">选择一种方式</string>
+    <string name="direct_apply">直接应用</string>
+    <string name="direct_apply_desc">直接应用主题，某些设备上可能无法生效。</string>
+    <string name="theme_import">作为主题导入</string>
+    <string name="theme_import_desc">将主题导入到主题应用</string>
+    <string name="direct_apply_banner">直接应用主题</string>
+    <string name="theme_import_banner">导入到主题商店</string>
+    <string name="generate_apk">将图标包导出为 APK</string>
+    <string name="warning_banner">手势导航在第三方启动器上可能无法使用</string>
+
+    <!-- Root theme application -->
+    <string name="apply_theme_title">应用主题</string>
+    <string name="apply_theme_running">正在通过 Root 应用主题…</string>
+    <string name="apply_theme_success">主题已应用</string>
+    <string name="apply_theme_failure">无法应用主题</string>
+    <string name="apply_theme_retry">重试</string>
+    <string name="apply_theme_close">关闭</string>
+    <string name="apply_theme_log">日志</string>
+    <string name="shizuku_not_running">Shizuku：未运行</string>
+    <string name="shizuku_not_installed">Shizuku：未安装</string>
+    <string name="settings_name">设置</string>
+    <string name="back">返回</string>
+    <string name="credits_name">鸣谢</string>
+    <string name="credits_app_description">用于应用和导入小米/MTZ 主题（.mtz/.bak）的工具。</string>
+    <string name="credits_developer">开发者</string>
+    <string name="credits_libraries">开源库</string>
+    <string name="credits_thanks">感谢 RikkaApps 提供 Shizuku，以及所有所用开源库的贡献者。</string>
+
+    <!-- Privilege method -->
+    <string name="privilege_method">提权方式</string>
+    <string name="privilege_method_desc">选择 MTZ Tool 执行特权命令的方式。</string>
+    <string name="provider_adb">ADB</string>
+    <string name="provider_adb_desc">通过无线调试和已配对的 ADB 连接。</string>
+    <string name="provider_shizuku">Shizuku</string>
+    <string name="provider_shizuku_desc">推荐。使用 Shizuku 应用获取 Shell 访问权限。</string>
+    <string name="provider_dhizuku">Dhizuku</string>
+    <string name="provider_dhizuku_desc">使用 Dhizuku 共享的设备所有者权限。</string>
+    <string name="provider_root">Root</string>
+    <string name="provider_root_desc">直接通过 su 执行命令。</string>
+    <string name="recommended">推荐</string>
+    <string name="provider_note">选择会被保存，下方视图会相应调整。</string>
+
+    <!-- ADB -->
+    <string name="adb_status">需要设置</string>
+    <string name="adb_description">应用无法直接使用 ADB。需要在设备上启用并配对无线调试。</string>
+    <string name="adb_steps">打开开发者选项，启用无线调试，并将此设备与电脑或配对工具配对。</string>
+    <string name="open_developer_options">打开开发者选项</string>
+
+    <!-- Dhizuku -->
+    <string name="dhizuku_installed">已安装 Dhizuku</string>
+    <string name="dhizuku_not_installed">未安装 Dhizuku</string>
+    <string name="dhizuku_description">Dhizuku 会与其他应用共享设备所有者权限。请先在 Dhizuku 应用中完成设置。</string>
+    <string name="open_dhizuku">打开 Dhizuku</string>
+    <string name="install_dhizuku">安装 Dhizuku</string>
+
+    <!-- Root -->
+    <string name="root_not_tested">尚未测试 Root 权限</string>
+    <string name="root_available">Root 权限可用</string>
+    <string name="root_not_available">Root 权限不可用</string>
+    <string name="root_description">需要已 Root 的设备、可用的 su 二进制文件以及会授予权限的 Root 管理器。</string>
+    <string name="test_root">测试 Root 权限</string>
+    <string name="checking">正在测试…</string>
+    <string name="refresh">刷新</string>
+    <string name="allow">允许</string>
+    <string name="root_timeout">超时 – Root 请求未获确认。</string>
+    <string name="root_no_output">无输出</string>
+    <string name="root_su_missing">无法启动 su。</string>
+
+    <!-- Access readiness -->
+    <string name="access_not_ready">尚无就绪的特权访问方式。请打开设置进行配置。</string>
+
+    <!-- ADB status -->
+    <string name="adb_enabled">ADB 调试已启用</string>
+    <string name="adb_disabled">ADB 调试未启用</string>
+    <string name="check_adb">检查 ADB 状态</string>
+
+    <!-- Language -->
+    <string name="language">语言</string>
+    <string name="language_desc">选择应用语言。“系统默认”会跟随设备语言。</string>
+    <string name="language_system">系统默认</string>
+    <string name="language_english">英语</string>
+    <string name="language_german">德语</string>
+
+    <!-- Settings backup -->
+    <string name="settings_backup">备份设置</string>
+    <string name="settings_backup_desc">将当前设置导出为 JSON 文件，或从备份中恢复。</string>
+    <string name="export_settings">导出</string>
+    <string name="import_settings">导入</string>
+    <string name="export_success">设置已导出。</string>
+    <string name="export_failed">导出失败：%1$s</string>
+    <string name="import_success">设置已导入。</string>
+    <string name="import_failed">导入失败：%1$s</string>
+
+    <!-- Developer mode -->
+    <string name="developer_mode">开发者模式</string>
+    <string name="developer_mode_active">开发者模式已启用。</string>
+    <string name="developer_mode_disable">关闭开发者模式</string>
+    <string name="developer_mode_disabled">开发者模式已关闭。</string>
+    <string name="developer_mode_activated">开发者模式已启用。</string>
+    <string name="developer_mode_already_active">开发者模式已处于启用状态。</string>
+    <string name="developer_mode_taps_remaining">再点击版本号 %1$d 次即可启用开发者模式。</string>
+    <string name="open_developer_tools">打开开发者工具</string>
+    <string name="version">版本</string>
+    <string name="version_tap_hint">点击版本号 5 次即可启用开发者模式。</string>
+
+    <!-- Developer screen -->
+    <string name="developer_intro">仅在开发者模式启用时可见。此区域显示特权访问层的诊断信息。</string>
+    <string name="developer_info">诊断</string>
+    <string name="developer_info_desc">应用及所选访问方式的当前状态。</string>
+    <string name="developer_provider">访问方式</string>
+    <string name="developer_shizuku">Shizuku 状态</string>
+    <string name="developer_root">Root 状态</string>
+    <string name="developer_version">应用版本</string>
+    <string name="developer_android">Android</string>
+    <string name="developer_device">设备</string>
+    <string name="developer_reset_root">重置 Root 测试</string>
+    <string name="developer_root_reset">Root 测试已重置。</string>
+
+    <!-- Tools -->
+    <string name="tools_name">工具</string>
+    <string name="tools_desc">在设备本地检查、比较和导出 MTZ 主题与权限文件。</string>
+    <string name="tool_inspector">主题检查器</string>
+    <string name="tool_inspector_desc">显示主题文件的元数据、组件、大小和权限状态。</string>
+    <string name="tool_compare">比较主题</string>
+    <string name="tool_compare_desc">比较两个主题文件，并列出新增、缺失和已更改的组件。</string>
+    <string name="tool_mra_checker">MRA 检查器</string>
+    <string name="tool_mra_checker_desc">检查 .mra 权限文件是否具有有效的小米签名，并显示涵盖的资源。</string>
+    <string name="tool_extractor">组件导出</string>
+    <string name="tool_extractor_desc">将主题的各个组件导出为单独的文件。</string>
+    <string name="tool_previews">预览图库</string>
+    <string name="tool_previews_desc">显示主题的所有预览图片，并可将其保存。</string>
+
+    <!-- Tool common -->
+    <string name="tool_theme_file">主题文件</string>
+    <string name="tool_mra_files">权限文件（.mra）</string>
+    <string name="tool_first_theme">第一个主题</string>
+    <string name="tool_second_theme">第二个主题</string>
+    <string name="tool_no_file_selected">未选择文件</string>
+    <string name="tool_pick_theme">选择主题文件</string>
+    <string name="tool_pick_another_theme">选择其他主题文件</string>
+    <string name="tool_pick_mra">选择 .mra 文件</string>
+    <string name="tool_pick_first_theme">选择第一个主题</string>
+    <string name="tool_pick_second_theme">选择第二个主题</string>
+    <string name="tool_loading">正在读取主题…</string>
+    <string name="tool_export">导出</string>
+    <string name="tool_save">保存</string>
+    <string name="tool_export_success">文件已保存。</string>
+    <string name="tool_export_failed">无法保存文件：%1$s</string>
+
+    <!-- Theme information -->
+    <string name="theme_kind_mtz">MTZ 压缩包</string>
+    <string name="theme_kind_backup">MIUI 备份</string>
+    <string name="theme_author">作者</string>
+    <string name="theme_version">版本</string>
+    <string name="theme_platform">平台</string>
+    <string name="theme_component_count">组件</string>
+    <string name="theme_size">大小</string>
+    <string name="theme_hash">主题哈希</string>
+    <string name="theme_rights">权限</string>
+    <string name="theme_full">完整主题</string>
+    <string name="theme_partial">精简主题（缺少权限）</string>
+    <string name="theme_valid_mras">有效权限文件</string>
+    <string name="theme_preview_count">预览图片</string>
+    <string name="theme_components">组件</string>
+    <string name="component_exempt">无需权限</string>
+    <string name="component_protected">需要权限</string>
+    <string name="component_covered">已涵盖</string>
+    <string name="component_uncovered">未涵盖</string>
+    <string name="component_sha1">SHA-1</string>
+
+    <!-- Theme compare -->
+    <string name="compare_result">比较结果</string>
+    <string name="compare_only_first">仅存在于第一个主题</string>
+    <string name="compare_only_second">仅存在于第二个主题</string>
+    <string name="compare_changed">已更改的组件</string>
+    <string name="compare_identical_count">%1$d 个相同组件</string>
+    <string name="compare_no_differences">未发现差异。</string>
+    <string name="compare_waiting">选择第二个主题以查看比较结果。</string>
+    <string name="compare_multiple_candidates">该文件包含多个主题，仅比较第一个。</string>
+
+    <!-- MRA checker -->
+    <string name="mra_signature_valid">签名有效</string>
+    <string name="mra_signature_invalid">签名无效</string>
+    <string name="mra_theme_hash">主题哈希</string>
+    <string name="mra_asset_count">涵盖的资源</string>
+    <string name="mra_error">错误</string>
+    <string name="mra_hint">主题管理器仅接受由小米签名的 .mra 文件。自行创建的权限文件无法通过此检查。</string>
+    <string name="mra_none_selected">尚未选择 .mra 文件。</string>
+    <string name="mra_read_failed">无法读取该文件。</string>
+    <string name="mra_summary">%1$d 个（共 %2$d 个）权限文件有效。</string>
+
+    <!-- Component export -->
+    <string name="extractor_component">组件</string>
+    <string name="extractor_choose_theme">选择主题</string>
+    <string name="extractor_no_components">此主题不包含组件。</string>
+    <string name="extractor_code">资源代码</string>
+
+    <!-- Preview gallery -->
+    <string name="previews_none">此主题不包含预览图片。</string>
+    <string name="previews_decode_failed">无法解码该图片。</string>
+
+    <!-- Common -->
+    <string name="common_cancel">取消</string>
+    <string name="common_save">保存</string>
+    <string name="common_disable">禁用</string>
+    <string name="common_use_workspace">使用工作区主题</string>
+    <string name="open_shizuku">打开 Shizuku</string>
+    <string name="version_tap_short">点击</string>
+
+    <!-- Setup wizard -->
+    <string name="setup_title">欢迎使用 MTZ Tool</string>
+    <string name="setup_subtitle">三个简单步骤，完成主题工坊设置。</string>
+    <string name="setup_step_theme">外观</string>
+    <string name="setup_step_language">语言</string>
+    <string name="setup_step_access">访问权限</string>
+    <string name="setup_theme_title">选择你的外观</string>
+    <string name="setup_theme_body">从六种配色系列中选择一种，每种均包含浅色和深色变体。之后可在设置中随时更改。</string>
+    <string name="setup_mode_title">显示模式</string>
+    <string name="setup_mode_system">跟随系统</string>
+    <string name="setup_mode_light">浅色</string>
+    <string name="setup_mode_dark">深色</string>
+    <string name="setup_mode_amoled">AMOLED 黑色</string>
+    <string name="setup_theme_family">配色系列</string>
+    <string name="setup_language_title">你的语言</string>
+    <string name="setup_language_body">选择 MTZ Tool 使用的语言。“系统默认”会跟随设备语言。</string>
+    <string name="setup_access_title">应如何应用主题？</string>
+    <string name="setup_access_body">Root 会将主题直接写入系统主题目录。Shizuku 无需 Root 即可将文件交给小米主题管理器。</string>
+    <string name="setup_access_note">你可以随时切换提权方式。仅当在此选择 Root 时才会使用 Root。</string>
+    <string name="setup_ready_title">准备就绪</string>
+    <string name="setup_ready_body">打开一次 .mtz 或 .bak 文件，即可在所有工具中复用同一内存主题：应用、修改、检查、比较、导出以及构建图标包。</string>
+    <string name="setup_back">返回</string>
+    <string name="setup_next">继续</string>
+    <string name="setup_finish">启动 MTZ Tool</string>
+    <string name="setup_skip">跳过</string>
+
+    <!-- Settings: appearance -->
+    <string name="settings_appearance">外观</string>
+    <string name="settings_appearance_desc">配色系列、显示模式及动态取色。</string>
+    <string name="settings_theme_family">配色系列</string>
+    <string name="settings_theme_mode">显示模式</string>
+    <string name="settings_dynamic_color">动态取色</string>
+    <string name="settings_dynamic_color_desc">在 Android 12+ 上使用壁纸颜色（仅限 Material 3）。</string>
+    <string name="settings_rerun_wizard">设置向导</string>
+    <string name="settings_rerun_wizard_desc">再次运行首次启动助手。</string>
+    <string name="settings_open">打开</string>
+
+    <!-- Settings: access -->
+    <string name="settings_access">特权访问</string>
+    <string name="settings_access_desc">选择 MTZ Tool 执行特权命令的方式。</string>
+
+    <!-- Settings: behaviour -->
+    <string name="settings_behavior">行为</string>
+    <string name="settings_behavior_desc">确认提示、安全检查及工具功能。</string>
+    <string name="settings_confirm_apply">应用前确认</string>
+    <string name="settings_confirm_apply_desc">应用主题前显示对话框。</string>
+    <string name="settings_keep_screen_on">应用时保持屏幕常亮</string>
+    <string name="settings_keep_screen_on_desc">防止长时间操作期间屏幕休眠。</string>
+    <string name="settings_strict_rights">严格权限检查</string>
+    <string name="settings_strict_rights_desc">将精简主题视为错误，而不是显示警告。</string>
+    <string name="settings_experimental_patcher">实验性 MTZ 修改器</string>
+    <string name="settings_experimental_patcher_desc">启用元数据、组件及壁纸重写。</string>
+    <string name="settings_raw_codes">显示原始组件代码</string>
+    <string name="settings_raw_codes_desc">在易读的组件名称旁显示内部代码。</string>
+    <string name="settings_bundled_visible">显示内置主题快捷方式</string>
+    <string name="settings_bundled_visible_desc">为 APK 内置主题添加开发者快捷方式。</string>
+
+    <!-- Settings: logging -->
+    <string name="settings_logging">日志</string>
+    <string name="settings_logging_desc">控制所有工具共用的日志控制台。</string>
+    <string name="settings_log_autoscroll">日志自动滚动</string>
+    <string name="settings_log_autoscroll_desc">始终跳转到最新日志条目。</string>
+    <string name="settings_log_verbose">详细日志</string>
+    <string name="settings_log_verbose_desc">同时将信息性条目写入 logcat。</string>
+    <string name="settings_max_log_entries">最大日志条数</string>
+
+    <!-- Settings: updates -->
+    <string name="settings_updates_desc">检查 GitHub Releases 并在应用内安装更新。</string>
+    <string name="settings_auto_check">自动检查更新</string>
+    <string name="settings_auto_check_desc">应用启动时检查更新，遵循下方间隔。</string>
+    <string name="settings_update_channel">更新通道</string>
+    <string name="settings_update_interval">检查间隔</string>
+    <string name="settings_open_updates">更新</string>
+
+    <!-- Settings: backup / reset / about -->
+    <string name="settings_bug_report">问题报告</string>
+    <string name="settings_reset">重置所有设置</string>
+    <string name="settings_reset_desc">将所有选项恢复为默认值。</string>
+    <string name="settings_reset_button">重置</string>
+    <string name="settings_reset_confirm">这将清除语言、主题、提权方式及其他所有设置。应用将重启并进入设置向导。</string>
+    <string name="settings_reset_done">设置已重置。</string>
+    <string name="settings_about">关于</string>
+
+    <!-- Developer options -->
+    <string name="developer_advanced_subtitle">所有设置和诊断信息一览。</string>
+    <string name="developer_everything_hint">此屏幕显示所有已保存的选项。更改会立即生效，并可通过设置备份导出。</string>
+    <string name="developer_diagnostics">诊断</string>
+    <string name="developer_diagnostics_desc">应用、特权层及工作区的实时状态。</string>
+    <string name="developer_package">包名</string>
+    <string name="developer_theme_family">配色系列</string>
+    <string name="developer_theme_mode">显示模式</string>
+    <string name="developer_language">语言</string>
+    <string name="developer_workspace">工作区主题</string>
+    <string name="developer_last_check">上次检查更新</string>
+    <string name="developer_skipped_version">已跳过的更新</string>
+    <string name="developer_update_settings">更新系统</string>
+    <string name="developer_update_settings_desc">通道、仓库、清单、安装器及降级行为。</string>
+    <string name="developer_shell_install">应用内静默更新</string>
+    <string name="developer_shell_install_desc">通过 Root/Shizuku 使用 pm install 安装已下载的 APK，而不是系统安装器。</string>
+    <string name="developer_allow_downgrade">允许降级</string>
+    <string name="developer_allow_downgrade_desc">向 pm install 传递 -d。测试旧版本时很有用。</string>
+    <string name="developer_debug_channel">显示调试通道</string>
+    <string name="developer_debug_channel_desc">在更新界面中显示 nightly/调试版本。</string>
+    <string name="developer_repo">GitHub 仓库</string>
+    <string name="developer_manifest">自定义更新清单</string>
+    <string name="developer_edit">编辑</string>
+    <string name="developer_reset_update">重置更新状态</string>
+    <string name="developer_appearance">外观与语言</string>
+    <string name="developer_access">特权引擎</string>
+    <string name="developer_access_note">Root 超时用于 Root 检查。Shell 用户会保存以供高级集成使用；默认为“shell”。</string>
+    <string name="developer_root_timeout">Root 超时</string>
+    <string name="developer_shell_user">Shell 用户</string>
+    <string name="developer_workspace_tools">工作区与日志</string>
+    <string name="developer_clear_logs">清除日志</string>
+    <string name="developer_clear_workspace">清除工作区</string>
+    <string name="developer_danger_zone">危险区域</string>
+    <string name="developer_danger_desc">重置将删除所有偏好设置并返回设置向导。</string>
+
+    <!-- Updates -->
+    <string name="updates_title">更新</string>
+    <string name="updates_installed">已安装版本</string>
+    <string name="updates_check">检查更新</string>
+    <string name="updates_checking">正在检查更新…</string>
+    <string name="updates_stable">稳定通道</string>
+    <string name="updates_prerelease">预发布通道</string>
+    <string name="updates_stable_hint">仅包含稳定版本。可在开发者选项中启用预发布版本。</string>
+    <string name="updates_prerelease_hint">预发布是早期版本，可能包含错误。此通道仅在开发者模式下可用。</string>
+    <string name="updates_download">下载更新</string>
+    <string name="updates_downloading">正在下载…</string>
+    <string name="updates_installing">正在安装…</string>
+    <string name="updates_install">安装更新</string>
+    <string name="updates_internal_install">通过 Root/Shizuku 内部安装。应用可能会重启。</string>
+    <string name="updates_fallback_install">无可用 Shell：将回退打开系统安装器。</string>
+    <string name="updates_up_to_date">你正在使用最新版本。</string>
+    <string name="updates_open_github">在 GitHub 上打开发布页</string>
+    <string name="updates_open_dev">打开更新设置</string>
+
+    <!-- MTZ patcher -->
+    <string name="patcher_title">MTZ 修改器</string>
+    <string name="patcher_intro">编辑元数据、移除组件并替换壁纸，然后导出可直接使用的 .mtz。</string>
+    <string name="patcher_open">打开主题</string>
+    <string name="patcher_analyzing">正在分析主题…</string>
+    <string name="patcher_metadata">主题元数据</string>
+    <string name="patcher_field_title">标题</string>
+    <string name="patcher_author">作者</string>
+    <string name="patcher_version">版本</string>
+    <string name="patcher_designer">设计者</string>
+    <string name="patcher_description">描述</string>
+    <string name="patcher_content">内容</string>
+    <string name="patcher_remove_hint">取消勾选组件即可将其从导出的主题中移除。</string>
+    <string name="patcher_no_components">未找到可移除的组件。</string>
+    <string name="patcher_wallpaper">壁纸</string>
+    <string name="patcher_system_wallpaper">主屏幕壁纸</string>
+    <string name="patcher_lock_wallpaper">锁屏壁纸</string>
+    <string name="patcher_export_name">文件名</string>
+    <string name="patcher_export">导出</string>
+
+    <!-- Icon pack -->
+    <string name="icon_pack_title">图标包</string>
+    <string name="icon_pack_desc">提取主题中存储的图标，并构建已签名的启动器图标包 APK。</string>
+    <string name="icon_pack_build">构建图标包</string>
+    <string name="icon_pack_install">安装</string>
+
+    <!-- Bug report -->
+    <string name="bug_report_title">问题报告</string>
+    <string name="bug_report_subtitle">直接向 GitHub 问题追踪器报告。</string>
+    <string name="bug_report_intro">描述问题。可自动附加设备详情、日志和设置。</string>
+    <string name="bug_report_category_bug">缺陷</string>
+    <string name="bug_report_category_feature">功能</string>
+    <string name="bug_report_short_title">简短标题</string>
+    <string name="bug_report_description">发生了什么？</string>
+    <string name="bug_report_steps">复现步骤</string>
+    <string name="bug_report_expected">预期行为</string>
+    <string name="bug_report_include_device">包含设备与应用诊断信息</string>
+    <string name="bug_report_include_logs">包含共享日志</string>
+    <string name="bug_report_include_settings">包含所有应用设置（JSON）</string>
+    <string name="bug_report_preview">附加诊断信息预览</string>
+    <string name="bug_report_open">打开 GitHub 问题</string>
+    <string name="bug_report_copy">复制报告</string>
+    <string name="bug_report_copied">报告已复制到剪贴板。</string>
+    <string name="bug_report_privacy">不会自动上传任何内容。报告将在浏览器中的 GitHub 上创建。</string>
+</resources>

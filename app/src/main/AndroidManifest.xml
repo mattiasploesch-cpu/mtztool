@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Storage permissions -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Query the theme manager and privilege apps -->
+    <queries>
+        <package android:name="com.android.thememanager" />
+        <package android:name="com.rosan.dhizuku" />
+        <package android:name="moe.shizuku.privileged.api" />
+
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MTZTool">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MTZTool">
+
+            <!-- Launcher -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Receive .mtz files via VIEW intent -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" />
+                <data android:host="aidl" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.mtz" />
+            </intent-filter>
+
+            <!-- Receive .mtz via SEND -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.SetupWizardActivity"
+            android:exported="false"
+            android:label="@string/setup_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings_name"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.DeveloperActivity"
+            android:exported="false"
+            android:label="@string/developer_mode"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.CreditsActivity"
+            android:exported="false"
+            android:label="@string/credits_name"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ToolsActivity"
+            android:exported="false"
+            android:label="@string/tools_name"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeInspectorActivity"
+            android:exported="false"
+            android:label="@string/tool_inspector"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeCompareActivity"
+            android:exported="false"
+            android:label="@string/tool_compare"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.MraCheckerActivity"
+            android:exported="false"
+            android:label="@string/tool_mra_checker"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeExtractorActivity"
+            android:exported="false"
+            android:label="@string/tool_extractor"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemePreviewActivity"
+            android:exported="false"
+            android:label="@string/tool_previews"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemePatchActivity"
+            android:exported="false"
+            android:label="@string/patcher_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.IconPackActivity"
+            android:exported="false"
+            android:label="@string/icon_pack_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.UpdateActivity"
+            android:exported="false"
+            android:label="@string/updates_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.BugReportActivity"
+            android:exported="false"
+            android:label="@string/bug_report_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ApplyThemeActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:label="@string/apply_theme_title"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.MTZTool" />
+
+        <!-- Shares downloaded updates and exported files -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Shizuku provider (required by library) -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
+            tools:ignore="MissingClass" />
+    </application>
+
+</manifest>

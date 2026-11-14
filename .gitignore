@@ -14,3 +14,6 @@ app/release/
 # Local/signing configuration
 local.properties
 keystore.properties
+
+# Cloud backup data belongs on the device-cloud branch, never on main
+devices/*/

@@ -367,6 +367,17 @@ private fun UpdateScreen(onBack: () -> Unit) {
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        target.patch?.let { patch ->
+                            Text(
+                                stringResource(
+                                    R.string.updates_patch_hint,
+                                    formatBytes(patch.size),
+                                    formatBytes(target.apk.size),
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                         if (target.changelog.isNotBlank()) {
                             Text(
                                 target.changelog,
@@ -390,7 +401,31 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         }
 
                         val file = downloadedFile
-                        if (file == null) {
+                        val patch = target.patch
+                        if (file == null && patch != null) {
+                            Button(
+                                onClick = {
+                                    PatcherLauncher.start(context, patch, target.versionName)
+                                },
+                                enabled = !downloading,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Icon(Icons.Default.SystemUpdate, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(R.string.updates_patch_apply))
+                            }
+                            TextButton(
+                                onClick = { download(target) },
+                                enabled = !downloading,
+                            ) {
+                                Text(
+                                    stringResource(
+                                        R.string.updates_full_apk,
+                                        formatBytes(target.apk.size),
+                                    )
+                                )
+                            }
+                        } else if (file == null) {
                             Button(
                                 onClick = { download(target) },
                                 enabled = !downloading,

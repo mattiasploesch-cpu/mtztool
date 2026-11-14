@@ -1,0 +1,121 @@
+name: Theme upload
+
+# Theme and app-theme upload PRs may only contain three data files below
+# <folder>/uploads/<slug>/. The workflow validates from the base branch and
+# publishes the canonical files only after the owner approves the PR.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: theme-upload-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate theme upload
+    if: >
+      startsWith(github.event.pull_request.title, 'theme:') ||
+      startsWith(github.event.pull_request.title, 'app-theme:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Check upload diff and schema
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          folder="themes"
+          if [[ "${{ github.event.pull_request.title }}" == app-theme:* ]]; then
+            folder="app-themes"
+          fi
+          mkdir -p /tmp/upload
+          mapfile -t files < <(gh api "repos/$REPO/pulls/$PR/files?per_page=100" --paginate --jq '.[].filename')
+          if [ "${#files[@]}" -lt 2 ] || [ "${#files[@]}" -gt 3 ]; then
+            echo "::error::Erwartet werden 2–3 Dateien, gefunden ${#files[@]}."
+            exit 1
+          fi
+          first="${files[0]}"
+          base="${first%/*}"
+          if [[ ! "$base" =~ ^$folder/uploads/[a-z0-9][a-z0-9-]{2,60}$ ]]; then
+            echo "::error::Ungültiger Upload-Pfad: $first"
+            exit 1
+          fi
+          for file in "${files[@]}"; do
+            if [[ "$file" != "$base/"* ]]; then
+              echo "::error::Datei außerhalb des Upload-Ordners: $file"
+              exit 1
+            fi
+            case "$(basename "$file")" in
+              meta.json|theme.json|theme.mtz|preview.png|preview.jpg) ;;
+              *) echo "::error::Nicht erlaubte Datei: $file"; exit 1 ;;
+            esac
+            gh api "repos/$REPO/contents/$file?ref=${{ github.event.pull_request.head.sha }}" \
+              --jq '.content' | base64 -d > "/tmp/upload/$(basename "$file")"
+          done
+          python3 scripts/validate-upload.py --dir /tmp/upload --folder "$folder"
+          echo "UPLOAD_FOLDER=$folder" >> "$GITHUB_ENV"
+
+      - name: Comment validation
+        if: github.event_name == 'pull_request_target'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR" --repo "$REPO" --body \
+            "Upload geprüft: nur erlaubte Dateien, Schema, Größe und SHA-256 sind gültig. ✅"
+
+  publish:
+    name: Publish approved upload
+    if: >
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      (startsWith(github.event.pull_request.title, 'theme:') ||
+       startsWith(github.event.pull_request.title, 'app-theme:'))
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Publish canonical files
+        env:
+          GH_TOKEN: ${{ secrets.THEME_MERGE_TOKEN || secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          folder="themes"
+          if [[ "${{ github.event.pull_request.title }}" == app-theme:* ]]; then
+            folder="app-themes"
+          fi
+          python3 scripts/publish-upload.py --repo "$REPO" --pr "$PR" --folder "$folder"
+
+      - name: Merge approved PR when token allows it
+        env:
+          TOKEN: ${{ secrets.THEME_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "${TOKEN:-}" ]; then
+            echo "::notice::THEME_MERGE_TOKEN nicht gesetzt – der Owner merged manuell."
+            exit 0
+          fi
+          GH_TOKEN="$TOKEN" gh pr merge "$PR" --repo "$REPO" --squash --delete-branch

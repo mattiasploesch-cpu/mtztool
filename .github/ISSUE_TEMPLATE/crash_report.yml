@@ -1,0 +1,43 @@
+name: Crash Report
+description: Die App wurde unerwartet beendet
+title: "[Crash] "
+labels: ["bug", "crash"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Wenn du in der App angemeldet bist, wird der letzte Absturz beim
+        nächsten Start automatisch als Issue angeboten oder direkt erstellt.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Was hast du vor dem Absturz gemacht?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Reproduzieren
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Häufigkeit
+      options:
+        - Immer
+        - Manchmal
+        - Einmalig
+    validations:
+      required: true
+
+  - type: textarea
+    id: stacktrace
+    attributes:
+      label: Stacktrace
+      render: shell
+    validations:
+      required: true

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Rollen, Rechte und Governance
+    url: https://github.com/mattiasploesch-cpu/mtztool/blob/main/.github/GOVERNANCE.md
+    about: Wer darf was, wie werde ich Reviewer oder Maintainer?
+  - name: Nightly-Builds
+    url: https://github.com/mattiasploesch-cpu/mtztool/releases/tag/nightly
+    about: Tägliche Vorabversion – ohne Support, nicht für den Alltag.
+  - name: Sicherheitslücke melden
+    url: https://github.com/mattiasploesch-cpu/mtztool/security/advisories/new
+    about: Bitte melde Sicherheitsprobleme vertraulich, nicht als öffentliches Issue.
+  - name: Diskussionen
+    url: https://github.com/mattiasploesch-cpu/mtztool/discussions
+    about: Fragen, Ideen und Austausch ohne konkretes Issue.

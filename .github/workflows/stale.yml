@@ -1,0 +1,29 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 45
+          days-before-close: 14
+          stale-issue-message: >
+            Dieses Issue ist seit 45 Tagen inaktiv. Bitte melde dich mit dem
+            aktuellen Stand, sonst wird es in 14 Tagen geschlossen.
+          stale-pr-message: >
+            Dieser Pull Request ist seit 45 Tagen inaktiv. Bitte aktualisiere
+            ihn oder schließe ihn.
+          exempt-issue-labels: "pinned,security,good first issue"
+          exempt-pr-labels: "pinned,security"
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"

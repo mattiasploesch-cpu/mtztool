@@ -395,4 +395,89 @@
     <string name="bug_report_copy">Copy report</string>
     <string name="bug_report_copied">Report copied to clipboard.</string>
     <string name="bug_report_privacy">Nothing is uploaded automatically. The report is created in your browser on GitHub.</string>
+
+    <!-- New feature screens -->
+    <string name="tool_studio">Theme Studio</string>
+    <string name="tool_studio_desc">Read the currently applied device theme or build a new theme from any files.</string>
+    <string name="tool_store">Theme Store</string>
+    <string name="tool_store_desc">Browse, download and manage themes from GitHub and download manifests.</string>
+    <string name="tool_rights">Rights tool</string>
+    <string name="tool_rights_desc">Validate .mra files, show coverage and attach valid rights to a theme.</string>
+    <string name="store_title">Theme Store</string>
+    <string name="store_tab_library">Library</string>
+    <string name="store_tab_discover">Discover</string>
+    <string name="store_tab_upload">Upload</string>
+    <string name="store_source_repo">Themes</string>
+    <string name="store_source_apps">App themes</string>
+    <string name="store_source_manifest">Manifest</string>
+    <string name="store_empty">No themes found.</string>
+    <string name="store_import">Import</string>
+    <string name="store_download">Download</string>
+    <string name="store_delete">Delete</string>
+    <string name="store_load">Load</string>
+    <string name="store_save">Save</string>
+    <string name="store_upload_pr">Create theme upload PR</string>
+    <string name="store_url_import">Import theme by URL</string>
+    <string name="store_official_note">The official Xiaomi store has no public API. Themes from it can be imported by direct link.</string>
+
+    <!-- Intro -->
+    <string name="intro_skip">Skip</string>
+    <string name="intro_next">Next</string>
+    <string name="intro_start">Get started</string>
+    <string name="intro_privacy">Device registration and cloud backup are optional and only run after you sign in to GitHub.</string>
+    <string name="intro_page1_title">Your theme workshop</string>
+    <string name="intro_page1_body">Open .mtz or .bak files, inspect every component, compare themes, replace wallpapers and export a clean theme.</string>
+    <string name="intro_page2_title">Browse and publish</string>
+    <string name="intro_page2_body">Discover themes on GitHub, keep them offline, and publish your own imports with a preview and a single upload button.</string>
+    <string name="intro_page3_title">Patch instead of downloading</string>
+    <string name="intro_page3_body">Updates arrive as small .patch files. The app applies them in the background, checks the signature and shows every step in the live log.</string>
+    <string name="intro_page4_title">Your devices, backed up</string>
+    <string name="intro_page4_body">Register each device with a reviewable pull request and sync settings and logs to your own repository branch.</string>
+
+    <!-- App patcher -->
+    <string name="patch_title">App patch</string>
+    <string name="patch_preparing">Preparing patch…</string>
+    <string name="patch_downloading">Downloading patch…</string>
+    <string name="patch_applying">Applying delta to the installed APK…</string>
+    <string name="patch_installing">Installing patched APK…</string>
+    <string name="patch_done">Update complete</string>
+    <string name="patch_failed">Patch update failed</string>
+    <string name="patch_retry">Try again</string>
+    <string name="patch_close">Close</string>
+    <string name="patch_hint">Only changed blocks are downloaded. The result is verified against the signed SHA-256 and the APK signature before installation.</string>
+
+    <!-- Update prompt -->
+    <string name="update_prompt_title">Update available</string>
+    <string name="update_prompt_patch_hint">Patch: %1$s instead of %2$s</string>
+    <string name="update_prompt_no_changelog">No changelog was attached to this release.</string>
+    <string name="update_prompt_authors">Contributors</string>
+    <string name="update_prompt_patch">Apply patch</string>
+    <string name="update_prompt_full">Full APK instead</string>
+    <string name="update_prompt_open_updates">Open update screen</string>
+    <string name="update_prompt_later">Later</string>
+
+    <!-- Updates: patch -->
+    <string name="updates_patch_apply">Apply patch</string>
+    <string name="updates_patch_hint">Patch: %1$s instead of %2$s</string>
+    <string name="updates_full_apk">Download full APK (%1$s)</string>
+
+    <!-- Device cloud -->
+    <string name="cloud_title">Device cloud</string>
+    <string name="cloud_desc">Registered and backed up</string>
+    <string name="cloud_signed_out">Sign in with GitHub to register this device and enable backups.</string>
+    <string name="cloud_open_github">Sign in with GitHub</string>
+    <string name="cloud_register">Register this device (PR)</string>
+    <string name="cloud_backup">Back up now</string>
+    <string name="cloud_restore">Restore</string>
+    <string name="cloud_auto_sync">Automatic cloud backup</string>
+    <string name="cloud_last_sync">Last sync: %1$s</string>
+    <string name="cloud_devices">Your other devices</string>
+    <string name="cloud_no_devices">No other devices registered yet.</string>
+
+    <!-- Restore prompt -->
+    <string name="restore_title">Restore your data?</string>
+    <string name="restore_body">This GitHub account already has registered devices. You can restore settings, language and theme before setting up this device.</string>
+    <string name="restore_apply">Restore this backup</string>
+    <string name="restore_new">Set up as a new device</string>
+    <string name="restore_failed">Restore failed: %1$s</string>
 </resources>

@@ -1,0 +1,135 @@
+- name: bug
+  color: "d73a4a"
+  description: "Etwas funktioniert nicht wie erwartet"
+
+- name: crash
+  color: "b60205"
+  description: "Die App wurde unerwartet beendet"
+
+- name: enhancement
+  color: "a2eeef"
+  description: "Neue Funktion oder Verbesserung"
+
+- name: theme
+  color: "8e44ad"
+  description: "Themes, MTZ-Aufbau, Rechte oder Theme Manager"
+
+- name: github-integration
+  color: "2f81f7"
+  description: "Issue-Tracker, PRs, Actions oder Auth"
+
+- name: device-layout
+  color: "1d76db"
+  description: "Smartphone, Tablet, Faltbar, TV oder Desktop-Layout"
+
+- name: needs-triage
+  color: "fbca04"
+  description: "Wurde noch nicht eingeordnet"
+
+- name: needs-info
+  color: "d4c5f9"
+  description: "Weitere Angaben werden benötigt"
+
+- name: good first issue
+  color: "7057ff"
+  description: "Guter Einstieg für neue Beitragende"
+
+- name: dependencies
+  color: "0366d6"
+  description: "Abhängigkeiten oder Actions aktualisiert"
+
+- name: gradle
+  color: "0e8a16"
+  description: "Build-System"
+
+- name: github-actions
+  color: "2088ff"
+  description: "CI/CD"
+
+- name: stale
+  color: "ededed"
+  description: "Seit längerer Zeit inaktiv"
+
+- name: security
+  color: "ee0701"
+  description: "Sicherheitsrelevant"
+
+- name: pinned
+  color: "0e8a16"
+  description: "Wird nicht automatisch geschlossen"
+
+- name: playstore
+  color: "3ddc84"
+  description: "Google-Play-Build oder Store-Themen"
+
+- name: release
+  color: "5319e7"
+  description: "Release-Vorbereitung"
+
+- name: nightly
+  color: "1f2933"
+  description: "Nightly-Build, Vorabversion oder nächtliche Automation"
+
+- name: access
+  color: "b60205"
+  description: "Rollen, Rechte, Rulesets oder Audit"
+
+- name: role-request
+  color: "8b5cf6"
+  description: "Antrag auf eine Projektrolle"
+
+- name: theme-submission
+  color: "a78bfa"
+  description: "Eingereichtes Theme für den Store"
+
+- name: blocked
+  color: "000000"
+  description: "Wartet auf eine Entscheidung oder externe Abhängigkeit"
+
+- name: do-not-merge
+  color: "e11d21"
+  description: "Darf nicht gemergt werden"
+
+- name: area/app
+  color: "c2e0c6"
+  description: "App-Code und Oberfläche"
+
+- name: area/theme
+  color: "bfd4f2"
+  description: "Theme-Studio, Bibliothek, Store oder Rechte"
+
+- name: area/github
+  color: "d4c5f9"
+  description: "GitHub-Integration, Auth und API"
+
+- name: area/build
+  color: "fef2c0"
+  description: "Gradle, Signatur, Release und Play"
+
+- name: area/docs
+  color: "ffffff"
+  description: "Dokumentation und Repository-Struktur"
+
+- name: area/ci
+  color: "c5def5"
+  description: "Workflows und Automation"
+
+- name: size/xs
+  color: "3cbf00"
+  description: "Sehr kleine Änderung (≤ 10 Zeilen)"
+
+- name: size/s
+  color: "5d9801"
+  description: "Kleine Änderung (≤ 100 Zeilen)"
+
+- name: size/m
+  color: "7f7f00"
+  description: "Mittlere Änderung (≤ 500 Zeilen)"
+
+- name: size/l
+  color: "b45f06"
+  description: "Große Änderung (≤ 1000 Zeilen)"
+
+- name: size/xl
+  color: "b60205"
+  description: "Sehr große Änderung (> 1000 Zeilen) – bitte aufteilen"

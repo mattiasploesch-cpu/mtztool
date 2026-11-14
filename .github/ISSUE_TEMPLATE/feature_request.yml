@@ -1,0 +1,81 @@
+name: Feature Request
+description: Neue Funktion oder Verbesserung vorschlagen
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature-Requests brauchen andere Angaben als Bug Reports: beschreibe
+        zuerst das Problem, dann deinen Vorschlag und den Anwendungsfall.
+        „Bitte besser machen“ ist kein ausreichender Vorschlag.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem löst dein Vorschlag?
+      description: Was fehlt dir heute und in welcher Situation?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Dein Vorschlag
+      description: Wie sollte die Funktion funktionieren?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Anwendungsfall
+      description: Wer profitiert und wann wird die Funktion genutzt?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Andere Wege, die du bereits ausprobiert hast.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bereich
+      options:
+        - Themes / MTZ
+        - Theme-Bibliothek
+        - Theme Studio
+        - Rechte / MRA
+        - GitHub / Issues / PRs
+        - Geräte-Layout
+        - Einstellungen
+        - Build / Release
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      options:
+        - Nice to have
+        - Wichtig
+        - Blockiert meine Arbeit
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe nach bestehenden Feature-Requests gesucht.
+          required: true
+        - label: Der Vorschlag beschreibt ein Problem, nicht nur eine Lösung.
+          required: true

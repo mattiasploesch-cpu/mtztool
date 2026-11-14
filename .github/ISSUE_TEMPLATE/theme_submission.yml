@@ -1,0 +1,105 @@
+name: Theme einreichen
+description: Ein MTZ- oder App-Theme für den In-App-Store vorschlagen
+title: "[Theme] "
+labels: ["theme", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bevorzugt: Theme in der App über **Theme Store → Hochladen** einreichen;
+        das erzeugt einen Draft-PR. Dieses Formular ist für Vorschläge,
+        externe Downloads oder wenn du keinen GitHub-Zugriff hast.
+
+        Bitte keine kostenpflichtigen Xiaomi-Store-Inhalte weitergeben.
+
+  - type: input
+    id: theme-name
+    attributes:
+      label: Theme-Name
+      placeholder: "z. B. Paper Dark"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Art
+      options:
+        - MTZ (System-Theme)
+        - App-Theme (APK/ZIP)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target
+    attributes:
+      label: Zielordner
+      options:
+        - themes/
+        - app-themes/
+    validations:
+      required: true
+
+  - type: input
+    id: package
+    attributes:
+      label: App-Paketname (nur bei App-Themes)
+      placeholder: "com.example.app"
+    validations:
+      required: false
+
+  - type: input
+    id: download
+    attributes:
+      label: Download-URL
+      description: Direkter Link oder Repository-Pfad. Keine Store-Links.
+    validations:
+      required: true
+
+  - type: input
+    id: sha256
+    attributes:
+      label: SHA-256
+      description: 64 Hex-Zeichen. Pflicht für externe Downloads.
+      placeholder: "abcdef…"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: author
+    attributes:
+      label: Autor / Rechteinhaber
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+      description: Was verändert das Theme? Welche Geräte/Apps?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Rechte und Qualität
+      options:
+        - label: Ich habe die Rechte, das Theme zu verbreiten.
+          required: true
+        - label: Es enthält keine kostenpflichtigen Store-Inhalte.
+          required: true
+        - label: SHA-256 und Dateigröße sind korrekt.
+          required: true
+        - label: Auf einem echten Gerät getestet.
+          required: true
+        - label: Keine Schadsoftware, keine ungefragten Systemänderungen.
+          required: true

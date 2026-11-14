@@ -1,0 +1,31 @@
+name: Lock threads
+
+on:
+  schedule:
+    - cron: "45 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  lock:
+    name: Lock resolved threads
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/lock-threads@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-inactive-days: 30
+          pr-inactive-days: 30
+          exclude-any-issue-labels: pinned
+          exclude-any-pr-labels: pinned
+          issue-comment: >
+            Dieses Issue ist geschlossen und wird nach 30 Tagen Inaktivität
+            gesperrt. Für neue Erkenntnisse bitte ein neues Issue öffnen.
+          pr-comment: >
+            Dieser Pull Request ist geschlossen und wird nach 30 Tagen
+            Inaktivität gesperrt. Für Änderungen bitte einen neuen PR öffnen.
+          issue-lock-reason: resolved
+          pr-lock-reason: resolved

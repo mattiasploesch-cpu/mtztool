@@ -1,0 +1,51 @@
+name: Version preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: version-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Next version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version from commits
+        id: next
+        run: |
+          set -euo pipefail
+          python3 scripts/next-version.py --format markdown > /tmp/version.md
+          python3 scripts/next-version.py --format github >> "$GITHUB_OUTPUT"
+          cat /tmp/version.md
+
+      - name: Upsert PR comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          marker="<!-- mtz-version-preview -->"
+          body="$marker
+          $(cat /tmp/version.md)
+
+          Der Bump wird beim Release aus den Conventional Commits seit dem letzten \`v*\`-Tag berechnet. Der \`versionCode\` steigt dabei immer."
+          comments="$(gh api "repos/$REPO/issues/$PR/comments?per_page=100")"
+          id="$(printf '%s' "$comments" | jq -r --arg marker "$marker" '.[] | select(.body | contains($marker)) | .id' | head -1)"
+          if [ -n "$id" ]; then
+            gh api --method PATCH "repos/$REPO/issues/comments/$id" -f body="$body"
+          else
+            gh pr comment "$PR" --repo "$REPO" --body "$body"
+          fi

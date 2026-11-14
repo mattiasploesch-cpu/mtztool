@@ -1,0 +1,96 @@
+name: Zugriff oder Rolle
+description: Rolle, Reviewer-Zugriff oder Maintainer-Rechte beantragen
+title: "[Access] "
+labels: ["access", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rollen und Voraussetzungen: [GOVERNANCE.md](../blob/main/.github/GOVERNANCE.md).
+        **Admin/Secrets werden nie über dieses Formular vergeben.** Ohne
+        Begründung und dokumentierte Beiträge wird nicht befördert.
+
+  - type: input
+    id: username
+    attributes:
+      label: GitHub-Benutzername
+      placeholder: "@name"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Beantragte Rolle
+      options:
+        - Triage (Stufe 2)
+        - Reviewer (Stufe 3)
+        - Maintainer (Stufe 4)
+        - Emeritus / Wiedereinstieg
+        - Zugriff entziehen (Offboarding)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: areas
+    attributes:
+      label: Bereiche
+      description: Wo soll die Rolle gelten?
+      options:
+        - label: Themes / Theme Studio
+        - label: GitHub-Integration / Auth
+        - label: UI / Adaptive Layout
+        - label: Build / Release
+        - label: Dokumentation
+        - label: Triage / Community
+
+  - type: textarea
+    id: contributions
+    attributes:
+      label: Beiträge und Referenzen
+      description: Verlinke Issues, PRs, Reviews oder Triage-Aktionen.
+      placeholder: "#123, #456, Review in #789 …"
+    validations:
+      required: true
+
+  - type: textarea
+    id: justification
+    attributes:
+      label: Begründung
+      description: Was möchtest du übernehmen und warum?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: duration
+    attributes:
+      label: Zeitraum
+      options:
+        - Dauerhaft
+        - 3 Monate (Probezeit)
+        - Projektbezogen
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Bestätigungen
+      options:
+        - label: Ich habe 2FA für mein GitHub-Konto aktiviert.
+          required: true
+        - label: Ich akzeptiere Governance, Access Control und Verhaltenskodex.
+          required: true
+        - label: Mir ist klar, dass Rechte bei Inaktivität oder Missbrauch entzogen werden.
+          required: true
+        - label: Ich nutze keine geteilten Konten und keine Dauer-Tokens.
+          required: true
+
+  - type: input
+    id: owner-approval
+    attributes:
+      label: Freigabe (nur vom Owner auszufüllen)
+      description: Rolle, Datum und Issue-Link der Entscheidung.
+      placeholder: "z. B. Reviewer genehmigt am 2026-11-20 (Owner)"
+    validations:
+      required: false

@@ -1,0 +1,63 @@
+# Path-based labels. Used by .github/workflows/pr-labeler.yml.
+area/app:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/src/main/kotlin/**"
+          - "app/src/main/res/**"
+
+area/theme:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "themes/**"
+          - "app-themes/**"
+          - "app/src/main/kotlin/at/libmatti/mtztool/Theme*.kt"
+          - "app/src/main/kotlin/at/libmatti/mtztool/activity/Theme*.kt"
+
+area/github:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/src/main/kotlin/at/libmatti/mtztool/github/**"
+          - "app/src/main/kotlin/at/libmatti/mtztool/activity/GitHub*.kt"
+          - "app/src/main/kotlin/at/libmatti/mtztool/activity/Issue*.kt"
+
+area/build:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "app/build.gradle.kts"
+          - "build.gradle.kts"
+          - "settings.gradle.kts"
+          - "gradle/**"
+          - "gradle.properties"
+          - "scripts/**"
+          - "proguard-rules.pro"
+          - "app/proguard-rules.pro"
+
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".github/actions/**"
+
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "gradle/libs.versions.toml"
+          - "gradle/wrapper/**"
+          - "**/build.gradle.kts"
+          - ".github/dependabot.yml"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/SECURITY.md"
+          - ".github/ACCESS_CONTROL.md"
+          - ".github/rulesets/**"
+          - "keystore.properties"
+          - "**/*.jks"
+          - "app/src/main/kotlin/at/libmatti/mtztool/github/**"

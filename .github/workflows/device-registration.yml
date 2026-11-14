@@ -1,0 +1,98 @@
+name: Device registration
+
+# Device registration PRs are special: they may only add exactly one JSON
+# file below /devices. No code, no workflows, no other files. The validation
+# runs from the base branch and reads the PR file through the API, so no fork
+# code is ever checked out or executed.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: device-registration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate device file
+    if: startsWith(github.event.pull_request.title, 'device:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout base branch validation code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Validate that only one device file was added
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t rows < <(
+            gh api "repos/$REPO/pulls/$PR/files?per_page=100" --paginate \
+              --jq '.[] | [.status, .filename, (.additions|tostring), (.deletions|tostring)] | @tsv'
+          )
+          if [ "${#rows[@]}" -ne 1 ]; then
+            echo "::error::Ein Device-PR darf genau eine Datei enthalten, gefunden: ${#rows[@]}."
+            exit 1
+          fi
+          IFS=$'\t' read -r status file additions deletions <<< "${rows[0]}"
+          echo "Datei: $file (status=$status, +$additions/-$deletions)"
+          if [ "$status" != "added" ]; then
+            echo "::error::Die Device-Datei muss neu hinzugefügt werden, nicht geändert."
+            exit 1
+          fi
+          if [[ ! "$file" =~ ^devices/[a-z0-9][a-z0-9._-]{2,80}\.json$ ]]; then
+            echo "::error::Nur devices/<slug>.json ist erlaubt, nicht '$file'."
+            exit 1
+          fi
+          if [ "$deletions" != "0" ]; then
+            echo "::error::Eine neue Device-Datei darf keine Zeilen ersetzen."
+            exit 1
+          fi
+          size="$(gh api "repos/$REPO/contents/$file?ref=$HEAD_SHA" --jq '.size')"
+          if [ "$size" -gt 24576 ]; then
+            echo "::error::Device-Datei ist größer als 24 KiB ($size Bytes)."
+            exit 1
+          fi
+          gh api "repos/$REPO/contents/$file?ref=$HEAD_SHA" --jq '.content' \
+            | base64 -d > /tmp/device.json
+          python3 scripts/validate-device.py /tmp/device.json --filename "$(basename "$file")"
+          echo "DEVICE_FILE=$file" >> "$GITHUB_ENV"
+
+      - name: Comment validation result
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          DEVICE_FILE: ${{ env.DEVICE_FILE }}
+        run: |
+          set -euo pipefail
+          gh pr comment "$PR" --repo "$REPO" --body \
+            "Device-Datei \`$DEVICE_FILE\` geprüft: genau eine neue Datei, gültiges Schema, keine Secrets. ✅"
+
+      - name: Auto-merge with machine token (optional)
+        env:
+          MERGE_TOKEN: ${{ secrets.DEVICE_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MERGE_TOKEN:-}" ]; then
+            echo "::notice::DEVICE_MERGE_TOKEN nicht gesetzt – der Owner merged den geprüften PR manuell."
+            exit 0
+          fi
+          # The machine account must be allowed to approve and merge. It must
+          # not be the PR author, because GitHub forbids self-approval.
+          GH_TOKEN="$MERGE_TOKEN" gh pr review "$PR" --repo "$REPO" --approve \
+            --body "Automatisch geprüft: nur eine neue Device-Datei, Schema gültig."
+          GH_TOKEN="$MERGE_TOKEN" gh pr merge "$PR" --repo "$REPO" --squash --delete-branch

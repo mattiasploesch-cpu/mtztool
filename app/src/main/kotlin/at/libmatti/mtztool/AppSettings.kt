@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import at.libmatti.mtztool.device.DeviceClass
 import at.libmatti.mtztool.ui.theme.ThemeFamily
 import at.libmatti.mtztool.ui.theme.ThemeMode
 import org.json.JSONObject
@@ -86,7 +87,14 @@ object AppSettings {
         prefs(context).edit().putLong(key, value).apply()
     }
 
-    // ── Setup ─────────────────────────────────────────────────
+    // ── Setup / intro ─────────────────────────────────────────
+
+    fun isIntroSeen(context: Context) =
+        getBool(context, "intro_seen", false)
+
+    fun setIntroSeen(context: Context, seen: Boolean) {
+        setBool(context, "intro_seen", seen)
+    }
 
     fun isSetupCompleted(context: Context) =
         getBool(context, "setup_completed", false)
@@ -306,6 +314,53 @@ object AppSettings {
         setString(context, "update_manifest_url", url.trim())
     }
 
+    /** Optimistic UI default; the remote config can disable patches. */
+    fun isPatchUpdatesEnabled(context: Context) =
+        getBool(context, "patch_updates", true)
+
+    fun setPatchUpdatesEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "patch_updates", enabled)
+    }
+
+    fun getPromptedUpdateVersionCode(context: Context) =
+        getInt(context, "prompted_update_version_code", 0)
+
+    fun setPromptedUpdateVersionCode(context: Context, value: Int) {
+        setInt(context, "prompted_update_version_code", value)
+    }
+
+    fun isDeviceSyncEnabled(context: Context) =
+        getBool(context, "device_sync_enabled", false)
+
+    fun setDeviceSyncEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "device_sync_enabled", enabled)
+    }
+
+    fun getLastDeviceSync(context: Context) =
+        getLong(context, "last_device_sync", 0L)
+
+    fun setLastDeviceSync(context: Context, timestamp: Long) {
+        setLong(context, "last_device_sync", timestamp)
+    }
+
+    fun getRemoteConfigJson(context: Context): String =
+        getString(context, "remote_config", "")
+
+    fun setRemoteConfigJson(context: Context, value: String) {
+        setString(context, "remote_config", value)
+        setLong(context, "remote_config_at", System.currentTimeMillis())
+    }
+
+    fun getRemoteConfigAt(context: Context) =
+        getLong(context, "remote_config_at", 0L)
+
+    fun getRemoteAnnouncement(context: Context): String =
+        getString(context, "remote_announcement", "")
+
+    fun setRemoteAnnouncement(context: Context, value: String) {
+        setString(context, "remote_announcement", value)
+    }
+
     fun isShellInstallEnabled(context: Context) =
         getBool(context, "shell_install", true)
 
@@ -333,6 +388,83 @@ object AppSettings {
     fun setSkippedUpdateVersionCode(context: Context, value: Int) {
         setInt(context, "skipped_update_version_code", value)
     }
+
+    // ── Device class & adaptive layout ────────────────────────
+
+    /** "AUTO" follows detection; any other value simulates that form factor. */
+    fun getDeviceClassOverride(context: Context): DeviceClass =
+        DeviceClass.fromStorage(getString(context, "device_class_override", DeviceClass.AUTO.name))
+
+    fun setDeviceClassOverride(context: Context, value: DeviceClass) {
+        setString(context, "device_class_override", value.name)
+        bumpTheme()
+    }
+
+    fun isAdaptiveLayoutEnabled(context: Context) =
+        getBool(context, "adaptive_layout", true)
+
+    fun setAdaptiveLayoutEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "adaptive_layout", enabled)
+        bumpTheme()
+    }
+
+    // ── GitHub integration ─────────────────────────────────────
+
+    /**
+     * OAuth token for the GitHub API. It is stored in the app's private
+     * preferences and never leaves the device except as an API credential.
+     */
+    fun getGithubToken(context: Context): String =
+        getString(context, "github_token", "")
+
+    fun setGithubToken(context: Context, token: String) {
+        setString(context, "github_token", token.trim())
+    }
+
+    fun getGithubLogin(context: Context): String =
+        getString(context, "github_login", "")
+
+    fun setGithubLogin(context: Context, login: String) {
+        setString(context, "github_login", login.trim())
+    }
+
+    /** OAuth App client ID used by the in-app device flow. */
+    fun getGithubClientId(context: Context): String =
+        getString(context, "github_client_id", BuildConfig.GITHUB_CLIENT_ID)
+            .ifBlank { BuildConfig.GITHUB_CLIENT_ID }
+
+    fun setGithubClientId(context: Context, value: String) {
+        setString(context, "github_client_id", value.trim())
+    }
+
+    /** Google OAuth client ID for the in-app PKCE flow. */
+    fun getGoogleClientId(context: Context): String =
+        getString(context, "google_client_id", BuildConfig.GOOGLE_CLIENT_ID)
+            .ifBlank { BuildConfig.GOOGLE_CLIENT_ID }
+
+    fun setGoogleClientId(context: Context, value: String) {
+        setString(context, "google_client_id", value.trim())
+    }
+
+    fun getGoogleAccount(context: Context): String =
+        getString(context, "google_account", "")
+
+    fun setGoogleAccount(context: Context, account: String) {
+        setString(context, "google_account", account.trim())
+    }
+
+    fun isCrashAutoReportEnabled(context: Context) =
+        getBool(context, "crash_auto_report", true)
+
+    fun setCrashAutoReportEnabled(context: Context, enabled: Boolean) {
+        setBool(context, "crash_auto_report", enabled)
+    }
+
+    /**
+     * True when the build may install updates itself. Play builds must not
+     * request REQUEST_INSTALL_PACKAGES, so they never self-update.
+     */
+    fun isSelfUpdateSupported(): Boolean = !BuildConfig.PLAY_BUILD
 
     // ── Reset ─────────────────────────────────────────────────
 
@@ -375,6 +507,14 @@ object AppSettings {
         json.put("allowDowngrade", isDowngradeAllowed(context))
         json.put("lastUpdateCheck", getLastUpdateCheck(context))
         json.put("skippedUpdateVersionCode", getSkippedUpdateVersionCode(context))
+        json.put("deviceClassOverride", getDeviceClassOverride(context).name)
+        json.put("adaptiveLayout", isAdaptiveLayoutEnabled(context))
+        json.put("crashAutoReport", isCrashAutoReportEnabled(context))
+        json.put("introSeen", isIntroSeen(context))
+        json.put("patchUpdates", isPatchUpdatesEnabled(context))
+        json.put("deviceSyncEnabled", isDeviceSyncEnabled(context))
+        json.put("githubLogin", getGithubLogin(context))
+        json.put("googleAccount", getGoogleAccount(context))
         return json.toString(2)
     }
 
@@ -430,6 +570,16 @@ object AppSettings {
             if (json.has("skippedUpdateVersionCode")) {
                 setSkippedUpdateVersionCode(context, json.getInt("skippedUpdateVersionCode"))
             }
+            json.optStringOrNull("deviceClassOverride")?.let {
+                setDeviceClassOverride(context, DeviceClass.fromStorage(it))
+            }
+            json.optBooleanOrNull("adaptiveLayout")?.let { setAdaptiveLayoutEnabled(context, it) }
+            json.optBooleanOrNull("crashAutoReport")?.let { setCrashAutoReportEnabled(context, it) }
+            json.optBooleanOrNull("introSeen")?.let { setIntroSeen(context, it) }
+            json.optBooleanOrNull("patchUpdates")?.let { setPatchUpdatesEnabled(context, it) }
+            json.optBooleanOrNull("deviceSyncEnabled")?.let { setDeviceSyncEnabled(context, it) }
+            json.optStringOrNull("githubLogin")?.let { setGithubLogin(context, it) }
+            json.optStringOrNull("googleAccount")?.let { setGoogleAccount(context, it) }
         }
 
     private fun JSONObject.optStringOrNull(key: String): String? =

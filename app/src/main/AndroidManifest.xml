@@ -68,9 +68,39 @@
         </activity>
 
         <activity
+            android:name=".activity.IntroActivity"
+            android:exported="false"
+            android:label="@string/intro_page1_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.RestorePromptActivity"
+            android:exported="false"
+            android:label="@string/restore_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
             android:name=".activity.SetupWizardActivity"
             android:exported="false"
             android:label="@string/setup_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.DeviceCloudActivity"
+            android:exported="false"
+            android:label="@string/cloud_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.AppPatcherActivity"
+            android:exported="false"
+            android:label="@string/patch_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.UpdatePromptActivity"
+            android:exported="false"
+            android:label="@string/update_prompt_title"
             android:theme="@style/Theme.MTZTool" />
 
         <activity
@@ -149,6 +179,66 @@
             android:name=".activity.BugReportActivity"
             android:exported="false"
             android:label="@string/bug_report_title"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeStudioActivity"
+            android:exported="false"
+            android:label="Theme Studio"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeBrowserActivity"
+            android:exported="false"
+            android:label="Theme-Bibliothek"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeUploadActivity"
+            android:exported="false"
+            android:label="Theme hochladen"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.AppThemeBrowserActivity"
+            android:exported="false"
+            android:label="App-Theme-Browser"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.AppThemeStudioActivity"
+            android:exported="false"
+            android:label="App-Theme Studio"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.ThemeRightsActivity"
+            android:exported="false"
+            android:label="Rechte-Tool"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.GitHubActivity"
+            android:exported="false"
+            android:label="GitHub"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.GitHubAuthActivity"
+            android:exported="false"
+            android:label="Anmeldung"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.IssueEditorActivity"
+            android:exported="false"
+            android:label="Issue erstellen"
+            android:theme="@style/Theme.MTZTool" />
+
+        <activity
+            android:name=".activity.InAppBrowserActivity"
+            android:exported="false"
+            android:label="Browser"
             android:theme="@style/Theme.MTZTool" />
 
         <activity

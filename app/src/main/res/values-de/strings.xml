@@ -397,4 +397,26 @@
     <string name="bug_report_copy">Bericht kopieren</string>
     <string name="bug_report_copied">Bericht in die Zwischenablage kopiert.</string>
     <string name="bug_report_privacy">Es wird nichts automatisch hochgeladen. Der Bericht wird im Browser auf GitHub erstellt.</string>
+    <string name="tool_studio">Theme-Studio</string>
+    <string name="tool_studio_desc">Aktuelles Gerätetheme auslesen oder ein neues Theme aus beliebigen Dateien bauen.</string>
+    <string name="tool_store">Theme Store</string>
+    <string name="tool_store_desc">Themes aus GitHub und Manifesten durchsuchen, herunterladen und verwalten.</string>
+    <string name="tool_rights">Rechte-Tool</string>
+    <string name="tool_rights_desc">.mra-Dateien prüfen, Abdeckung anzeigen und gültige Rechte an ein Theme hängen.</string>
+    <string name="store_title">Theme Store</string>
+    <string name="store_tab_library">Bibliothek</string>
+    <string name="store_tab_discover">Entdecken</string>
+    <string name="store_tab_upload">Upload</string>
+    <string name="store_source_repo">Themes</string>
+    <string name="store_source_apps">App-Themes</string>
+    <string name="store_source_manifest">Manifest</string>
+    <string name="store_empty">Keine Themes gefunden.</string>
+    <string name="store_import">Importieren</string>
+    <string name="store_download">Herunterladen</string>
+    <string name="store_delete">Löschen</string>
+    <string name="store_load">Laden</string>
+    <string name="store_save">Speichern</string>
+    <string name="store_upload_pr">Theme-Upload-PR erstellen</string>
+    <string name="store_url_import">Theme per URL importieren</string>
+    <string name="store_official_note">Der offizielle Xiaomi-Store hat keine öffentliche API. Themes daraus lassen sich per Direktlink importieren.</string>
 </resources>

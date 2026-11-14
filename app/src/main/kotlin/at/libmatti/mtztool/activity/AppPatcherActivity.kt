@@ -83,31 +83,53 @@ class AppPatcherActivity : LocalizedActivity() {
         if (AppSettings.isKeepScreenOnEnabled(this)) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
-        val patch = UpdatePatch(
-            fromVersionCode = intent.getIntExtra(EXTRA_FROM_CODE, 0),
-            toVersionCode = intent.getIntExtra(EXTRA_TO_CODE, 0),
-            fromVersionName = intent.getStringExtra(EXTRA_FROM_NAME).orEmpty(),
-            toVersionName = intent.getStringExtra(EXTRA_VERSION_NAME).orEmpty(),
-            url = intent.getStringExtra(EXTRA_PATCH_URL).orEmpty(),
-            size = intent.getLongExtra(EXTRA_PATCH_SIZE, 0L),
-            sha256 = intent.getStringExtra(EXTRA_PATCH_SHA),
-        )
+        val patches = intent.getStringExtra(PatcherLauncher.EXTRA_PATCHES_JSON)
+            ?.let(::parsePatches)
+            ?.takeIf { it.isNotEmpty() }
+            ?: listOf(
+                UpdatePatch(
+                    fromVersionCode = intent.getIntExtra(EXTRA_FROM_CODE, 0),
+                    toVersionCode = intent.getIntExtra(EXTRA_TO_CODE, 0),
+                    fromVersionName = intent.getStringExtra(EXTRA_FROM_NAME).orEmpty(),
+                    toVersionName = intent.getStringExtra(EXTRA_VERSION_NAME).orEmpty(),
+                    url = intent.getStringExtra(EXTRA_PATCH_URL).orEmpty(),
+                    size = intent.getLongExtra(EXTRA_PATCH_SIZE, 0L),
+                    sha256 = intent.getStringExtra(EXTRA_PATCH_SHA),
+                ),
+            )
         setContent {
             MTZToolTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AppPatcherScreen(patch = patch, onBack = { finish() })
+                    AppPatcherScreen(patches = patches, onBack = { finish() })
                 }
             }
         }
     }
 }
 
+private fun parsePatches(json: String): List<UpdatePatch> = runCatching {
+    val array = org.json.JSONArray(json)
+    (0 until array.length()).mapNotNull { index ->
+        val obj = array.optJSONObject(index) ?: return@mapNotNull null
+        val url = obj.optString("url")
+        if (url.isBlank()) null else UpdatePatch(
+            fromVersionCode = obj.optInt("fromVersionCode"),
+            toVersionCode = obj.optInt("toVersionCode"),
+            fromVersionName = obj.optString("fromVersionName"),
+            toVersionName = obj.optString("toVersionName"),
+            url = url,
+            size = obj.optLong("size", 0L),
+            sha256 = obj.optString("sha256").takeIf { it.isNotBlank() },
+        )
+    }
+}.getOrDefault(emptyList())
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppPatcherScreen(patch: UpdatePatch, onBack: () -> Unit) {
+private fun AppPatcherScreen(patches: List<UpdatePatch>, onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var phase by remember { mutableStateOf(context.getString(R.string.patch_preparing)) }
@@ -117,8 +139,10 @@ private fun AppPatcherScreen(patch: UpdatePatch, onBack: () -> Unit) {
     var error by remember { mutableStateOf<String?>(null) }
 
     fun start() {
-        if (running || patch.url.isBlank()) {
-            if (patch.url.isBlank()) error = "Kein Patch-Link übergeben."
+        if (running || patches.isEmpty() || patches.any { it.url.isBlank() }) {
+            if (patches.isEmpty() || patches.any { it.url.isBlank() }) {
+                error = "Kein Patch-Link übergeben."
+            }
             return
         }
         running = true
@@ -128,32 +152,47 @@ private fun AppPatcherScreen(patch: UpdatePatch, onBack: () -> Unit) {
         scope.launch {
             val result = withContext(Dispatchers.IO) {
                 runCatching {
-                    phase = context.getString(R.string.patch_downloading)
-                    AppLog.info("Lade Patch ${patch.fromVersionName} → ${patch.toVersionName} …")
-                    val patchFile = UpdateChecker.downloadPatch(context, patch) { done, total ->
-                        if (total > 0) progress = (done.toFloat() / total) * 0.35f
-                    }.getOrThrow()
-                    AppLog.success("Patch geladen (${formatSize(patchFile.length())}).")
+                    var working = File(context.applicationInfo.sourceDir)
+                    patches.forEachIndexed { index, patch ->
+                        phase = "Lade Patch ${index + 1}/${patches.size} …"
+                        AppLog.info("Lade Patch ${patch.fromVersionName} → ${patch.toVersionName} …")
+                        val patchFile = UpdateChecker.downloadPatch(context, patch) { done, total ->
+                            if (total > 0) {
+                                val step = 0.85f / patches.size
+                                progress = index * step + (done.toFloat() / total) * step * 0.4f
+                            }
+                        }.getOrThrow()
+                        AppLog.success("Patch geladen (${formatSize(patchFile.length())}).")
 
-                    phase = context.getString(R.string.patch_applying)
-                    AppLog.info("Wende Delta auf die installierte APK an …")
-                    val base = File(context.applicationInfo.sourceDir)
-                    val output = File(context.cacheDir, "updates/MTZTool-${patch.toVersionName}.apk")
-                    val applied = ApkPatchEngine.apply(base, patchFile, output) { written, total ->
-                        if (total > 0) progress = 0.35f + (written.toFloat() / total) * 0.45f
+                        phase = "Wende Patch ${index + 1}/${patches.size} an …"
+                        AppLog.info("Wende Delta auf die installierte APK an …")
+                        val output = File(
+                            context.cacheDir,
+                            "updates/MTZTool-${patch.toVersionName}-${index}.apk",
+                        )
+                        val applied = ApkPatchEngine.apply(working, patchFile, output) {
+                                written, total ->
+                            if (total > 0) {
+                                val step = 0.85f / patches.size
+                                progress = index * step + step * 0.4f +
+                                    (written.toFloat() / total) * step * 0.6f
+                            }
+                        }
+                        working = applied.file
+                        progress = ((index + 1).toFloat() / patches.size) * 0.85f
+                        AppLog.success("Patch ${index + 1} geprüft.")
                     }
-                    AppLog.success("APK geprüft: SHA-256 und Signatur sind gültig.")
 
                     phase = context.getString(R.string.patch_installing)
                     AppLog.info("Installiere gepatchtes APK …")
                     progress = 0.9f
-                    UpdateInstaller.install(context, applied.file) { line -> AppLog.info(line) }
+                    UpdateInstaller.install(context, working) { line -> AppLog.info(line) }
                         .getOrThrow()
                     progress = 1f
                     finished = true
                     phase = context.getString(R.string.patch_done)
                     AppLog.success("Patch-Update abgeschlossen. Die App startet neu.")
-                    applied.file
+                    working
                 }
             }
             running = false
@@ -174,7 +213,8 @@ private fun AppPatcherScreen(patch: UpdatePatch, onBack: () -> Unit) {
                     Column {
                         Text(stringResource(R.string.patch_title), fontWeight = FontWeight.Bold)
                         Text(
-                            "${patch.fromVersionName.ifBlank { "?" }} → ${patch.toVersionName}",
+                            "${patches.first().fromVersionName.ifBlank { "?" }} → " +
+                                patches.last().toVersionName,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -234,7 +274,8 @@ private fun AppPatcherScreen(patch: UpdatePatch, onBack: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
-                        "${(progress * 100).toInt()} % · ${formatSize(patch.size)} Patch",
+                        "${(progress * 100).toInt()} % · ${patches.size} Patch(es) · " +
+                            formatSize(patches.sumOf { it.size }),
                         style = MaterialTheme.typography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                     )

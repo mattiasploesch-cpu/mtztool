@@ -127,6 +127,8 @@ private fun UpdatePromptScreen(onBack: () -> Unit) {
     }
 
     val target = release
+    val patchChain = target?.patches.orEmpty()
+        .ifEmpty { listOfNotNull(target?.patch) }
     val (sections, authors) = remember(target?.changelog) {
         parseChangelog(target?.changelog.orEmpty())
     }
@@ -204,13 +206,15 @@ private fun UpdatePromptScreen(onBack: () -> Unit) {
                                 else stringResource(R.string.updates_stable),
                                 style = MaterialTheme.typography.labelMedium,
                             )
-                            if (target.patch != null) {
+                            if (patchChain.isNotEmpty()) {
                                 Text(
                                     stringResource(
                                         R.string.update_prompt_patch_hint,
-                                        formatBytes(target.patch.size),
+                                        formatBytes(patchChain.sumOf { it.size }),
                                         formatBytes(target.apk.size),
-                                    ),
+                                    ) + if (patchChain.size > 1) {
+                                        " · ${patchChain.size} Schritte"
+                                    } else "",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
                                 )
@@ -273,9 +277,9 @@ private fun UpdatePromptScreen(onBack: () -> Unit) {
                         )
                     }
 
-                    if (target.patch != null) {
+                    if (patchChain.isNotEmpty()) {
                         Button(
-                            onClick = { PatcherLauncher.start(context, target.patch, target.versionName) },
+                            onClick = { PatcherLauncher.start(context, patchChain, target.versionName) },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Icon(Icons.Default.SystemUpdate, contentDescription = null)

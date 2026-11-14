@@ -330,6 +330,8 @@ private fun UpdateScreen(onBack: () -> Unit) {
             }
 
             val target = release
+            val patchChain = target?.patches.orEmpty()
+                .ifEmpty { listOfNotNull(target?.patch) }
             if (target != null) {
                 Card(
                     shape = RoundedCornerShape(24.dp),
@@ -367,13 +369,15 @@ private fun UpdateScreen(onBack: () -> Unit) {
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        target.patch?.let { patch ->
+                        patchChain.firstOrNull()?.let { patch ->
                             Text(
                                 stringResource(
                                     R.string.updates_patch_hint,
-                                    formatBytes(patch.size),
+                                    formatBytes(patchChain.sumOf { it.size }),
                                     formatBytes(target.apk.size),
-                                ),
+                                ) + if (patchChain.size > 1) {
+                                    " · ${patchChain.size} Schritte"
+                                } else "",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -401,11 +405,10 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         }
 
                         val file = downloadedFile
-                        val patch = target.patch
-                        if (file == null && patch != null) {
+                        if (file == null && patchChain.isNotEmpty()) {
                             Button(
                                 onClick = {
-                                    PatcherLauncher.start(context, patch, target.versionName)
+                                    PatcherLauncher.start(context, patchChain, target.versionName)
                                 },
                                 enabled = !downloading,
                                 modifier = Modifier.fillMaxWidth(),

@@ -54,6 +54,7 @@ data class UpdateRelease(
     val htmlUrl: String,
     val channel: UpdateChannel,
     val patch: UpdatePatch? = null,
+    val patches: List<UpdatePatch> = emptyList(),
 )
 
 /**
@@ -303,16 +304,15 @@ object UpdateChecker {
                     // Older manifests may not contain the patch object yet. In
                     // that case use the patch asset published next to the APK.
                     return if (parsed.patch == null && patchAsset != null) {
-                        parsed.copy(
-                            patch = UpdatePatch(
-                                fromVersionCode = currentCode,
-                                toVersionCode = parsed.versionCode,
-                                fromVersionName = "",
-                                toVersionName = parsed.versionName,
-                                url = patchAsset.url,
-                                size = patchAsset.size,
-                            ),
+                        val direct = UpdatePatch(
+                            fromVersionCode = currentCode,
+                            toVersionCode = parsed.versionCode,
+                            fromVersionName = "",
+                            toVersionName = parsed.versionName,
+                            url = patchAsset.url,
+                            size = patchAsset.size,
                         )
+                        parsed.copy(patch = direct, patches = listOf(direct))
                     } else {
                         parsed
                     }
@@ -345,6 +345,28 @@ object UpdateChecker {
                 UpdateChannel.STABLE
             },
         )
+    }
+
+    /** Orders adjacent patches into a chain from [fromCode] to [toCode]. */
+    private fun patchChain(
+        patches: List<UpdatePatch>,
+        fromCode: Int,
+        toCode: Int,
+    ): List<UpdatePatch> {
+        if (fromCode <= 0 || toCode <= 0 || fromCode == toCode) return emptyList()
+        val byFrom = patches
+            .filter { it.fromVersionCode > 0 && it.toVersionCode > it.fromVersionCode }
+            .groupBy { it.fromVersionCode }
+        val result = mutableListOf<UpdatePatch>()
+        var current = fromCode
+        while (current != toCode && result.size < 32) {
+            val next = byFrom[current]
+                ?.minByOrNull { it.toVersionCode }
+                ?: break
+            result += next
+            current = next.toVersionCode
+        }
+        return if (current == toCode) result else emptyList()
     }
 
     // ── Custom manifest ───────────────────────────────────────
@@ -402,22 +424,30 @@ object UpdateChecker {
         val apkSize = json.optLong("apkSize", apkObject?.optLong("size", 0L) ?: 0L)
         val sha = json.optString("sha256").ifBlank { apkObject?.optString("sha256").orEmpty() }
 
-        var patch: UpdatePatch? = null
-        json.optJSONObject("patch")?.let { obj ->
+        val allPatches = mutableListOf<UpdatePatch>()
+        fun addPatch(obj: JSONObject?) {
+            if (obj == null) return
             val fromCode = obj.optInt("fromVersionCode")
             val patchUrl = resolveUrl(baseUrl, obj.optString("url"))
-            if (patchUrl.isNotBlank() && (currentCode == 0 || fromCode == currentCode)) {
-                patch = UpdatePatch(
-                    fromVersionCode = fromCode,
-                    toVersionCode = obj.optInt("toVersionCode", versionCode),
-                    fromVersionName = obj.optString("fromVersionName"),
-                    toVersionName = obj.optString("toVersionName").ifBlank { versionName },
-                    url = patchUrl,
-                    size = obj.optLong("size", 0L),
-                    sha256 = obj.optString("sha256").ifBlank { null },
-                )
-            }
+            if (patchUrl.isBlank()) return
+            allPatches += UpdatePatch(
+                fromVersionCode = fromCode,
+                toVersionCode = obj.optInt("toVersionCode", versionCode),
+                fromVersionName = obj.optString("fromVersionName"),
+                toVersionName = obj.optString("toVersionName").ifBlank { versionName },
+                url = patchUrl,
+                size = obj.optLong("size", 0L),
+                sha256 = obj.optString("sha256").ifBlank { null },
+            )
         }
+        json.optJSONObject("patch")?.let(::addPatch)
+        json.optJSONArray("patches")?.let { array ->
+            for (index in 0 until array.length()) addPatch(array.optJSONObject(index))
+        }
+        val chain = patchChain(allPatches, currentCode, versionCode)
+        val patch = chain.firstOrNull()
+            ?: allPatches.firstOrNull { currentCode == 0 || it.fromVersionCode == currentCode }
+        val patches = chain.ifEmpty { listOfNotNull(patch) }
 
         val splits = mutableListOf<UpdateAsset>()
         json.optJSONArray("splits")?.let { array ->
@@ -453,6 +483,7 @@ object UpdateChecker {
             htmlUrl = json.optString("htmlUrl").ifBlank { fallbackHtml },
             channel = if (prerelease) UpdateChannel.PRERELEASE else UpdateChannel.STABLE,
             patch = patch,
+            patches = patches,
         )
     }
 

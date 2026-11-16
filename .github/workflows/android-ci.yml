@@ -77,7 +77,7 @@ jobs:
 
       - name: Upload debug APK
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mtztool-debug
           path: app/build/outputs/apk/debug/*.apk
@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload release APK
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mtztool-release
           path: dist/*.apk
@@ -93,7 +93,7 @@ jobs:
 
       - name: Upload Play bundle
         if: ${{ inputs.upload_artifacts && inputs.play }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mtztool-aab
           path: dist/*.aab
@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload lint report
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lint-report
           path: |
@@ -111,7 +111,7 @@ jobs:
 
       - name: Upload checksums
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: checksums
           path: |

@@ -10,7 +10,7 @@
     "android": "16",
     "appVersion": "2.3.6null",
     "versionCode": 20306,
-    "registeredAt": "2026-11-17T16:04:12Z"
+    "registeredAt": "2026-11-19T18:24:01Z"
   },
   "settings": {
     "app": "at.libmatti.mtztool",
@@ -52,6 +52,6 @@
     "githubLogin": "mattiasploesch-cpu",
     "googleAccount": ""
   },
-  "logs": "2026-11-17 17:04:07 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-17 17:04:12 [INFO] Lese Comfortable.mtz.zip in den Arbeitsspeicher …\n2026-11-17 17:04:12 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-17 17:04:12 [INFO] Theme geladen: 27.7 MB\n2026-11-17 17:04:12 [INFO] Analysiere Theme-Inhalte …\n2026-11-17 17:04:12 [WARNING] Rechteprüfung: Im Theme ist keine Rechte-Datei (.mra) enthalten.",
-  "updatedAt": "2026-11-17T16:04:12Z"
+  "logs": "2026-11-19 19:24:01 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.",
+  "updatedAt": "2026-11-19T18:24:01Z"
 }

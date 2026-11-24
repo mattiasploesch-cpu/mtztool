@@ -8,9 +8,9 @@
     "manufacturer": "Xiaomi",
     "model": "2511FPC34G",
     "android": "16",
-    "appVersion": "2.3.6null",
-    "versionCode": 20306,
-    "registeredAt": "2026-11-17T16:04:12Z"
+    "appVersion": "2.1.0null",
+    "versionCode": 20100,
+    "registeredAt": "2026-11-24T18:43:10Z"
   },
   "settings": {
     "app": "at.libmatti.mtztool",
@@ -41,7 +41,7 @@
     "updateManifestUrl": "",
     "shellInstall": true,
     "allowDowngrade": false,
-    "lastUpdateCheck": 1794931450618,
+    "lastUpdateCheck": 1795112645758,
     "skippedUpdateVersionCode": 0,
     "deviceClassOverride": "TABLET",
     "adaptiveLayout": true,
@@ -52,6 +52,6 @@
     "githubLogin": "mattiasploesch-cpu",
     "googleAccount": ""
   },
-  "logs": "2026-11-17 17:04:07 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-17 17:04:12 [INFO] Lese Comfortable.mtz.zip in den Arbeitsspeicher …\n2026-11-17 17:04:12 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.\n2026-11-17 17:04:12 [INFO] Theme geladen: 27.7 MB\n2026-11-17 17:04:12 [INFO] Analysiere Theme-Inhalte …\n2026-11-17 17:04:12 [WARNING] Rechteprüfung: Im Theme ist keine Rechte-Datei (.mra) enthalten.",
-  "updatedAt": "2026-11-17T16:04:12Z"
+  "logs": "2026-11-24 19:43:09 [INFO] Remote-Konfiguration geladen: stable, Patches=true, Sync=true.",
+  "updatedAt": "2026-11-24T18:43:10Z"
 }
